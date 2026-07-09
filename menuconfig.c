@@ -45,6 +45,97 @@ typedef struct {
     size_t unknown_count;
 } ConfigState;
 
+typedef enum {
+    UI_NORMAL = 1,
+    UI_HEADER,
+    UI_PANEL,
+    UI_PANEL_TITLE,
+    UI_SELECTED,
+    UI_CATEGORY,
+    UI_VALUE,
+    UI_FOOTER,
+    UI_STATUS,
+    UI_DIRTY,
+} UiColor;
+
+static bool ui_color_enabled = false;
+
+static void init_ui_theme(void) {
+    if (!has_colors()) {
+        return;
+    }
+
+    start_color();
+    use_default_colors();
+
+    init_pair(UI_NORMAL, COLOR_WHITE, -1);
+    init_pair(UI_HEADER, COLOR_BLACK, COLOR_CYAN);
+    init_pair(UI_PANEL, COLOR_WHITE, -1);
+    init_pair(UI_PANEL_TITLE, COLOR_CYAN, -1);
+    init_pair(UI_SELECTED, COLOR_BLACK, COLOR_WHITE);
+    init_pair(UI_CATEGORY, COLOR_CYAN, -1);
+    init_pair(UI_VALUE, COLOR_GREEN, -1);
+    init_pair(UI_FOOTER, COLOR_BLACK, COLOR_WHITE);
+    init_pair(UI_STATUS, COLOR_GREEN, -1);
+    init_pair(UI_DIRTY, COLOR_YELLOW, -1);
+
+    ui_color_enabled = true;
+}
+
+static void ui_attr_on(const int pair, const int attrs) {
+    if (ui_color_enabled) {
+        attron(COLOR_PAIR(pair));
+    }
+
+    if (attrs != A_NORMAL) {
+        attron(attrs);
+    }
+}
+
+static void ui_attr_off(const int pair, const int attrs) {
+    if (attrs != A_NORMAL) {
+        attroff(attrs);
+    }
+
+    if (ui_color_enabled) {
+        attroff(COLOR_PAIR(pair));
+    }
+}
+
+static void draw_fill(const int y, const int x, const int width) {
+    if (width <= 0) {
+        return;
+    }
+
+    mvhline(y, x, ' ', width);
+}
+
+static void draw_box(const int y, const int x, const int height, const int width) {
+    if (height < 2 || width < 2) {
+        return;
+    }
+
+    mvaddch(y, x, ACS_ULCORNER);
+    mvaddch(y, x + width - 1, ACS_URCORNER);
+    mvaddch(y + height - 1, x, ACS_LLCORNER);
+    mvaddch(y + height - 1, x + width - 1, ACS_LRCORNER);
+
+    mvhline(y, x + 1, ACS_HLINE, width - 2);
+    mvhline(y + height - 1, x + 1, ACS_HLINE, width - 2);
+    mvvline(y + 1, x, ACS_VLINE, height - 2);
+    mvvline(y + 1, x + width - 1, ACS_VLINE, height - 2);
+}
+
+static void draw_right_text(const int y, const char *text, const int max_x) {
+    const int len = (int)strlen(text);
+
+    if (len >= max_x) {
+        return;
+    }
+
+    mvaddnstr(y, max_x - len - 2, text, len);
+}
+
 static void copy_string(char *dst, const size_t dst_size, const char *src) {
     if (src == NULL) {
         dst[0] = '\0';
@@ -561,55 +652,146 @@ static void render(
 
     erase();
 
-    mvaddnstr(0, 0, "mochiOS BuildConfig", max_x - 1);
-    mvprintw(1, 0, "config: %s%s", config_path, dirty ? "  [modified]" : "");
+    if (max_y < 8 || max_x < 48) {
+        mvaddnstr(0, 0, "terminal is too small", max_x - 1);
+        refresh();
+        return;
+    }
 
-    int row = 3;
+    ui_attr_on(UI_HEADER, A_BOLD);
+    draw_fill(0, 0, max_x);
+    mvaddnstr(0, 2, "mochiOS BuildConfig", max_x - 4);
 
-    for (int i = offset; i < (int)state->option_count && row < max_y - 3; i++) {
-        ConfigOption *option = &state->options[i];
+    if (dirty) {
+        draw_right_text(0, "[modified]", max_x);
+    } else {
+        draw_right_text(0, "[clean]", max_x);
+    }
+
+    ui_attr_off(UI_HEADER, A_BOLD);
+
+    ui_attr_on(UI_NORMAL, A_NORMAL);
+    draw_fill(1, 0, max_x);
+    mvaddnstr(1, 2, "Config:", max_x - 4);
+    mvaddnstr(1, 10, config_path, max_x - 12);
+    ui_attr_off(UI_NORMAL, A_NORMAL);
+
+    const int panel_y = 3;
+    const int panel_x = 1;
+    const int panel_h = max_y - 7;
+    const int panel_w = max_x - 2;
+
+    ui_attr_on(UI_PANEL, A_NORMAL);
+    draw_box(panel_y, panel_x, panel_h, panel_w);
+    ui_attr_off(UI_PANEL, A_NORMAL);
+
+    ui_attr_on(UI_PANEL_TITLE, A_BOLD);
+    mvaddnstr(panel_y, panel_x + 2, " Options ", panel_w - 4);
+    ui_attr_off(UI_PANEL_TITLE, A_BOLD);
+
+    const int header_y = panel_y + 1;
+    const int list_y = panel_y + 2;
+    const int list_h = panel_h - 3;
+
+    const int category_x = panel_x + 3;
+    const int prompt_x = panel_x + 18;
+    int value_x = max_x - 30;
+
+    if (value_x < prompt_x + 16) {
+        value_x = prompt_x + 16;
+    }
+
+    const int category_w = prompt_x - category_x - 1;
+    const int prompt_w = value_x - prompt_x - 2;
+    const int value_w = max_x - value_x - 3;
+
+    ui_attr_on(UI_PANEL_TITLE, A_BOLD);
+    mvaddnstr(header_y, category_x, "Category", category_w);
+    mvaddnstr(header_y, prompt_x, "Option", prompt_w);
+    mvaddnstr(header_y, value_x, "Value", value_w);
+    ui_attr_off(UI_PANEL_TITLE, A_BOLD);
+
+    for (int row = 0; row < list_h; row++) {
+        const int option_index = offset + row;
+        const int y = list_y + row;
+
+        draw_fill(y, panel_x + 1, panel_w - 2);
+
+        if (option_index >= (int)state->option_count) {
+            continue;
+        }
+
+        ConfigOption *option = &state->options[option_index];
 
         char value[VALUE_SIZE + 8];
-        char line[MAX_LINE];
-
         option_display_value(option, value);
 
-        snprintf(
-            line,
-            sizeof(line),
-            "%-14s %-44s %s",
-            option->category,
-            option->prompt,
-            value
-        );
+        const bool is_selected = option_index == selected;
 
-        if (i == selected) {
-            attron(A_REVERSE);
+        if (is_selected) {
+            ui_attr_on(UI_SELECTED, A_BOLD);
+            draw_fill(y, panel_x + 1, panel_w - 2);
+            mvaddnstr(y, panel_x + 2, ">", 1);
+            mvaddnstr(y, category_x, option->category, category_w);
+            mvaddnstr(y, prompt_x, option->prompt, prompt_w);
+            mvaddnstr(y, value_x, value, value_w);
+            ui_attr_off(UI_SELECTED, A_BOLD);
+        } else {
+            ui_attr_on(UI_CATEGORY, A_NORMAL);
+            mvaddnstr(y, category_x, option->category, category_w);
+            ui_attr_off(UI_CATEGORY, A_NORMAL);
+
+            ui_attr_on(UI_NORMAL, A_NORMAL);
+            mvaddnstr(y, prompt_x, option->prompt, prompt_w);
+            ui_attr_off(UI_NORMAL, A_NORMAL);
+
+            ui_attr_on(UI_VALUE, A_NORMAL);
+            mvaddnstr(y, value_x, value, value_w);
+            ui_attr_off(UI_VALUE, A_NORMAL);
         }
-
-        mvaddnstr(row, 0, line, max_x - 1);
-
-        if (i == selected) {
-            attroff(A_REVERSE);
-        }
-
-        row++;
     }
 
-    if ((int)state->option_count > max_y - 6) {
-        mvprintw(max_y - 4, 0, "%d/%zu", selected + 1, state->option_count);
-    }
+    int progress_y = max_y - 4;
+    char progress[64];
 
-    mvhline(max_y - 3, 0, ACS_HLINE, max_x);
-    mvaddnstr(
-        max_y - 2,
-        0,
-        "Up/Down: move  Space: toggle/next  Enter: edit/next  s: save  q: quit",
-        max_x - 1
+    snprintf(
+        progress,
+        sizeof(progress),
+        "%d/%zu",
+        selected + 1,
+        state->option_count
     );
 
+    ui_attr_on(UI_NORMAL, A_DIM);
+    mvaddnstr(progress_y, 2, progress, max_x - 4);
+    ui_attr_off(UI_NORMAL, A_DIM);
+
+    const int footer_y = max_y - 2;
+
+    ui_attr_on(UI_FOOTER, A_NORMAL);
+    draw_fill(footer_y, 0, max_x);
+    mvaddnstr(
+        footer_y,
+        2,
+        "Up/Down: move   Space: toggle/next   Enter: edit/next   s: save   q: quit",
+        max_x - 4
+    );
+    ui_attr_off(UI_FOOTER, A_NORMAL);
+
+    draw_fill(max_y - 1, 0, max_x);
+
     if (status[0] != '\0') {
-        mvaddnstr(max_y - 1, 0, status, max_x - 1);
+        ui_attr_on(UI_STATUS, A_BOLD);
+        mvaddnstr(max_y - 1, 2, status, max_x - 4);
+        ui_attr_off(UI_STATUS, A_BOLD);
+    } else if (dirty) {
+        ui_attr_on(UI_DIRTY, A_NORMAL);
+        mvaddnstr(max_y - 1, 2, "Unsaved changes", max_x - 4);
+        ui_attr_off(UI_DIRTY, A_NORMAL);
+    } else {
+        ui_attr_on(UI_NORMAL, A_DIM);
+        mvaddnstr(max_y - 1, 2, "Ready", max_x - 4);
+        ui_attr_off(UI_NORMAL, A_DIM);
     }
 
     refresh();
@@ -714,6 +896,7 @@ int main(const int argc, char **argv) {
     setlocale(LC_ALL, "");
 
     initscr();
+    init_ui_theme();
     cbreak();
     noecho();
     keypad(stdscr, TRUE);
