@@ -3,19 +3,25 @@
 #include <locale.h>
 #include <ncurses.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdarg.h>
 
 #define MAX_OPTIONS 512
+#define MAX_MENUS 128
+#define MAX_MENU_CHILDREN 128
 #define MAX_CHOICES 32
 #define MAX_UNKNOWN 512
 #define MAX_LINE 1024
 #define KEY_SIZE 128
 #define PROMPT_SIZE 256
-#define CATEGORY_SIZE 128
+#define MENU_TITLE_SIZE 128
 #define VALUE_SIZE 256
 #define CHOICE_SIZE 128
 #define ERROR_SIZE 2048
+
+#define SIZE_INVALID (size_t)-1
 
 typedef enum {
     OPT_BOOL,
@@ -26,7 +32,6 @@ typedef enum {
 typedef struct {
     char key[KEY_SIZE];
     char prompt[PROMPT_SIZE];
-    char category[CATEGORY_SIZE];
 
     OptionType type;
 
@@ -37,13 +42,37 @@ typedef struct {
     size_t choice_count;
 } ConfigOption;
 
+typedef enum {
+    MENU_ITEM_OPTION,
+    MENU_ITEM_SUBMENU,
+} MenuItemType;
+
+typedef struct {
+    MenuItemType type;
+    size_t index;
+} MenuItem;
+
+typedef struct {
+    char title[MENU_TITLE_SIZE];
+    int parent;
+    MenuItem children[MAX_MENU_CHILDREN];
+    size_t child_count;
+} ConfigMenu;
+
 typedef struct {
     ConfigOption options[MAX_OPTIONS];
     size_t option_count;
-
+    ConfigMenu menus[MAX_MENUS];
+    size_t menu_count;
     char unknown_lines[MAX_UNKNOWN][MAX_LINE];
     size_t unknown_count;
 } ConfigState;
+
+typedef struct {
+    int current_menu;
+    int selected[MAX_MENUS];
+    int offset[MAX_MENUS];
+} MenuViewState;
 
 typedef enum {
     UI_NORMAL = 1,
@@ -308,162 +337,398 @@ static int choice_index(const ConfigOption *option) {
 }
 
 static bool parse_option_line(
-    ConfigState *state,
-    char *line,
-    const char *category,
-    const size_t line_number
+	ConfigState *state,
+	char *line,
+	const size_t line_number,
+	size_t *option_index
 ) {
-    if (state->option_count >= MAX_OPTIONS) {
-        fprintf(stderr, "schema:%zu: too many options\n", line_number);
+	if (state->option_count >= MAX_OPTIONS) {
+		fprintf(stderr, "schema:%zu: too many options\n", line_number);
+		return false;
+	}
+
+	char *cursor = line;
+
+	char type_word[32];
+	char key[KEY_SIZE];
+	char prompt[PROMPT_SIZE];
+	char default_value[VALUE_SIZE];
+
+	if (!read_word(&cursor, type_word, sizeof(type_word))) {
+		return true;
+	}
+
+	if (!read_word(&cursor, key, sizeof(key))) {
+		fprintf(stderr, "schema:%zu: missing key\n", line_number);
+		return false;
+	}
+
+	if (!read_quoted(&cursor, prompt, sizeof(prompt))) {
+		fprintf(stderr, "schema:%zu: missing prompt\n", line_number);
+		return false;
+	}
+
+	ConfigOption *option = &state->options[state->option_count];
+	memset(option, 0, sizeof(*option));
+
+	copy_string(option->key, sizeof(option->key), key);
+	copy_string(option->prompt, sizeof(option->prompt), prompt);
+
+	if (strcmp(type_word, "bool") == 0) {
+		option->type = OPT_BOOL;
+
+		if (!read_value(&cursor, default_value, sizeof(default_value))) {
+			copy_string(default_value, sizeof(default_value), "n");
+		}
+
+		if (
+			strcmp(default_value, "y") != 0 &&
+			strcmp(default_value, "n") != 0
+		) {
+			fprintf(
+				stderr,
+				"schema:%zu: bool default must be y or n\n",
+				line_number
+			);
+
+			return false;
+		}
+
+		copy_string(
+			option->default_value,
+			sizeof(option->default_value),
+			default_value
+		);
+
+		copy_string(
+			option->value,
+			sizeof(option->value),
+			default_value
+		);
+	} else if (strcmp(type_word, "string") == 0) {
+		option->type = OPT_STRING;
+
+		if (!read_value(&cursor, default_value, sizeof(default_value))) {
+			default_value[0] = '\0';
+		}
+
+		copy_string(
+			option->default_value,
+			sizeof(option->default_value),
+			default_value
+		);
+
+		copy_string(
+			option->value,
+			sizeof(option->value),
+			default_value
+		);
+	} else if (strcmp(type_word, "choice") == 0) {
+		option->type = OPT_CHOICE;
+
+		if (!read_value(&cursor, default_value, sizeof(default_value))) {
+			fprintf(
+				stderr,
+				"schema:%zu: missing choice default\n",
+				line_number
+			);
+
+			return false;
+		}
+
+		copy_string(
+			option->default_value,
+			sizeof(option->default_value),
+			default_value
+		);
+
+		copy_string(
+			option->value,
+			sizeof(option->value),
+			default_value
+		);
+
+		char choice[CHOICE_SIZE];
+
+		while (read_value(&cursor, choice, sizeof(choice))) {
+			if (option->choice_count >= MAX_CHOICES) {
+				fprintf(
+					stderr,
+					"schema:%zu: too many choices\n",
+					line_number
+				);
+
+				return false;
+			}
+
+			copy_string(
+				option->choices[option->choice_count],
+				sizeof(option->choices[option->choice_count]),
+				choice
+			);
+
+			option->choice_count++;
+		}
+
+		if (option->choice_count == 0) {
+			fprintf(
+				stderr,
+				"schema:%zu: choice needs values\n",
+				line_number
+			);
+
+			return false;
+		}
+
+		if (!choice_contains(option, option->default_value)) {
+			fprintf(
+				stderr,
+				"schema:%zu: choice default is not in values\n",
+				line_number
+			);
+
+			return false;
+		}
+	} else {
+		fprintf(
+			stderr,
+			"schema:%zu: unknown option type: %s\n",
+			line_number,
+			type_word
+		);
+
+		return false;
+	}
+
+	*option_index = state->option_count;
+	state->option_count++;
+
+	return true;
+}
+
+static void initialize_root_menu(ConfigState *state) {
+	ConfigMenu *root = &state->menus[0];
+
+	memset(root, 0, sizeof(*root));
+
+	copy_string(
+		root->title,
+		sizeof(root->title),
+		"Main menu"
+	);
+
+	root->parent = -1;
+	state->menu_count = 1;
+}
+
+static bool add_menu_child(
+	ConfigMenu *menu,
+	const MenuItemType type,
+	const size_t index,
+	const size_t line_number
+) {
+	if (menu->child_count >= MAX_MENU_CHILDREN) {
+		fprintf(
+			stderr,
+			"schema:%zu: too many menu items\n",
+			line_number
+		);
+
+		return false;
+	}
+
+	if (index == SIZE_INVALID || index >= MAX_OPTIONS) {
+        fprintf(
+            stderr,
+            "schema:%zu: invalid menu item index\n",
+            line_number
+        );
+
         return false;
     }
 
-    char *cursor = line;
+	MenuItem *item = &menu->children[menu->child_count];
 
-    char type_word[32];
-    char key[KEY_SIZE];
-    char prompt[PROMPT_SIZE];
-    char default_value[VALUE_SIZE];
+	item->type = type;
+	item->index = index;
 
-    if (!read_word(&cursor, type_word, sizeof(type_word))) {
-        return true;
-    }
+	menu->child_count++;
 
-    if (!read_word(&cursor, key, sizeof(key))) {
-        fprintf(stderr, "schema:%zu: missing key\n", line_number);
-        return false;
-    }
+	return true;
+}
 
-    if (!read_quoted(&cursor, prompt, sizeof(prompt))) {
-        fprintf(stderr, "schema:%zu: missing prompt\n", line_number);
-        return false;
-    }
+static bool begin_menu(
+	ConfigState *state,
+	const char *title,
+	int *current_menu,
+	const size_t line_number
+) {
+	if (state->menu_count >= MAX_MENUS) {
+		fprintf(
+			stderr,
+			"schema:%zu: too many menus\n",
+			line_number
+		);
 
-    ConfigOption *option = &state->options[state->option_count];
-    memset(option, 0, sizeof(*option));
+		return false;
+	}
 
-    copy_string(option->key, sizeof(option->key), key);
-    copy_string(option->prompt, sizeof(option->prompt), prompt);
-    copy_string(option->category, sizeof(option->category), category);
+	const size_t menu_index = state->menu_count;
+	ConfigMenu *menu = &state->menus[menu_index];
 
-    if (strcmp(type_word, "bool") == 0) {
-        option->type = OPT_BOOL;
+	state->menu_count++;
 
-        if (!read_value(&cursor, default_value, sizeof(default_value))) {
-            copy_string(default_value, sizeof(default_value), "n");
-        }
+	memset(menu, 0, sizeof(*menu));
 
-        if (strcmp(default_value, "y") != 0 && strcmp(default_value, "n") != 0) {
-            fprintf(stderr, "schema:%zu: bool default must be y or n\n", line_number);
-            return false;
-        }
+	copy_string(
+		menu->title,
+		sizeof(menu->title),
+		title
+	);
 
-        copy_string(option->default_value, sizeof(option->default_value), default_value);
-        copy_string(option->value, sizeof(option->value), default_value);
-    } else if (strcmp(type_word, "string") == 0) {
-        option->type = OPT_STRING;
+	menu->parent = *current_menu;
 
-        if (!read_value(&cursor, default_value, sizeof(default_value))) {
-            default_value[0] = '\0';
-        }
+	if (!add_menu_child(
+		&state->menus[*current_menu],
+		MENU_ITEM_SUBMENU,
+		menu_index,
+		line_number
+	)) {
+		return false;
+	}
 
-        copy_string(option->default_value, sizeof(option->default_value), default_value);
-        copy_string(option->value, sizeof(option->value), default_value);
-    } else if (strcmp(type_word, "choice") == 0) {
-        option->type = OPT_CHOICE;
+	*current_menu = (int)menu_index;
 
-        if (!read_value(&cursor, default_value, sizeof(default_value))) {
-            fprintf(stderr, "schema:%zu: missing choice default\n", line_number);
-            return false;
-        }
+	return true;
+}
 
-        copy_string(option->default_value, sizeof(option->default_value), default_value);
-        copy_string(option->value, sizeof(option->value), default_value);
+static bool end_menu(
+	ConfigState *state,
+	int *current_menu,
+	const size_t line_number
+) {
+	if (*current_menu == 0) {
+		fprintf(
+			stderr,
+			"schema:%zu: unexpected endmenu\n",
+			line_number
+		);
 
-        char choice[CHOICE_SIZE];
+		return false;
+	}
 
-        while (read_value(&cursor, choice, sizeof(choice))) {
-            if (option->choice_count >= MAX_CHOICES) {
-                fprintf(stderr, "schema:%zu: too many choices\n", line_number);
-                return false;
-            }
+	*current_menu = state->menus[*current_menu].parent;
 
-            copy_string(
-                option->choices[option->choice_count],
-                sizeof(option->choices[option->choice_count]),
-                choice
-            );
-
-            option->choice_count++;
-        }
-
-        if (option->choice_count == 0) {
-            fprintf(stderr, "schema:%zu: choice needs values\n", line_number);
-            return false;
-        }
-
-        if (!choice_contains(option, option->default_value)) {
-            fprintf(stderr, "schema:%zu: choice default is not in values\n", line_number);
-            return false;
-        }
-    } else {
-        fprintf(stderr, "schema:%zu: unknown option type: %s\n", line_number, type_word);
-        return false;
-    }
-
-    state->option_count++;
-    return true;
+	return true;
 }
 
 static bool load_schema(ConfigState *state, const char *path) {
-    FILE *file = fopen(path, "r");
+	FILE *file = fopen(path, "r");
 
-    if (file == NULL) {
-        fprintf(stderr, "failed to open schema: %s: %s\n", path, strerror(errno));
-        return false;
-    }
+	if (file == NULL) {
+		fprintf(
+			stderr,
+			"failed to open schema: %s: %s\n",
+			path,
+			strerror(errno)
+		);
 
-    char line[MAX_LINE];
-    char category[CATEGORY_SIZE] = "General";
+		return false;
+	}
 
-    size_t line_number = 0;
+	initialize_root_menu(state);
 
-    while (fgets(line, sizeof(line), file) != NULL) {
-        line_number++;
+	char line[MAX_LINE];
+	int current_menu = 0;
+	size_t line_number = 0;
 
-        char *text = trim(line);
+	while (fgets(line, sizeof(line), file) != NULL) {
+		line_number++;
 
-        if (*text == '\0' || *text == '#') {
-            continue;
-        }
+		char *text = trim(line);
 
-        if (starts_with(text, "menu")) {
-            char *cursor = text + 4;
-            char name[CATEGORY_SIZE];
+		if (*text == '\0' || *text == '#') {
+			continue;
+		}
 
-            if (!read_quoted(&cursor, name, sizeof(name))) {
-                fprintf(stderr, "schema:%zu: menu needs quoted name\n", line_number);
-                fclose(file);
-                return false;
-            }
+		if (starts_with(text, "menu")) {
+			char *cursor = text + 4;
+			char name[MENU_TITLE_SIZE];
 
-            copy_string(category, sizeof(category), name);
-            continue;
-        }
+			if (!read_quoted(&cursor, name, sizeof(name))) {
+				fprintf(
+					stderr,
+					"schema:%zu: menu needs quoted name\n",
+					line_number
+				);
 
-        if (strcmp(text, "endmenu") == 0) {
-            copy_string(category, sizeof(category), "General");
-            continue;
-        }
+				fclose(file);
+				return false;
+			}
 
-        if (!parse_option_line(state, text, category, line_number)) {
-            fclose(file);
-            return false;
-        }
-    }
+			if (!begin_menu(
+				state,
+				name,
+				&current_menu,
+				line_number
+			)) {
+				fclose(file);
+				return false;
+			}
 
-    fclose(file);
-    return true;
+			continue;
+		}
+
+		if (strcmp(text, "endmenu") == 0) {
+			if (!end_menu(
+				state,
+				&current_menu,
+				line_number
+			)) {
+				fclose(file);
+				return false;
+			}
+
+			continue;
+		}
+
+		size_t option_index = SIZE_INVALID;
+
+		if (!parse_option_line(
+			state,
+			text,
+			line_number,
+			&option_index
+		)) {
+			fclose(file);
+			return false;
+		}
+
+		if (!add_menu_child(
+			&state->menus[current_menu],
+			MENU_ITEM_OPTION,
+			option_index,
+			line_number
+		)) {
+			fclose(file);
+			return false;
+		}
+	}
+
+	if (current_menu != 0) {
+		fprintf(
+			stderr,
+			"schema:%zu: missing endmenu\n",
+			line_number
+		);
+
+		fclose(file);
+		return false;
+	}
+
+	fclose(file);
+
+	return true;
 }
 
 static void normalize_config_value(ConfigOption *option) {
@@ -637,164 +902,317 @@ static void option_display_value(
     }
 }
 
-static void render(
-    ConfigState *state,
-    const int selected,
-    const int offset,
-    const bool dirty,
-    const char *config_path,
-    const char *status
+static void build_menu_path(
+	const ConfigState *state,
+	const int menu_index,
+	char *out,
+	const size_t out_size
 ) {
-    int max_y;
-    int max_x;
+	int path[MAX_MENUS];
+	size_t depth = 0;
+	int current = menu_index;
 
-    getmaxyx(stdscr, max_y, max_x);
+	while (current >= 0 && depth < MAX_MENUS) {
+		path[depth] = current;
+		depth++;
 
-    erase();
+		current = state->menus[current].parent;
+	}
 
-    if (max_y < 8 || max_x < 48) {
-        mvaddnstr(0, 0, "terminal is too small", max_x - 1);
-        refresh();
-        return;
-    }
+	out[0] = '\0';
 
-    ui_attr_on(UI_HEADER, A_BOLD);
-    draw_fill(0, 0, max_x);
-    mvaddnstr(0, 2, "mochiOS BuildConfig", max_x - 4);
+	while (depth > 0) {
+		const ConfigMenu *menu;
 
-    if (dirty) {
-        draw_right_text(0, "[modified]", max_x);
-    } else {
-        draw_right_text(0, "[clean]", max_x);
-    }
+		depth--;
+		menu = &state->menus[path[depth]];
 
-    ui_attr_off(UI_HEADER, A_BOLD);
+		if (out[0] != '\0') {
+			const size_t remaining =
+				out_size - strlen(out) - 1;
 
-    ui_attr_on(UI_NORMAL, A_NORMAL);
-    draw_fill(1, 0, max_x);
-    mvaddnstr(1, 2, "Config:", max_x - 4);
-    mvaddnstr(1, 10, config_path, max_x - 12);
-    ui_attr_off(UI_NORMAL, A_NORMAL);
+			strncat(out, " > ", remaining);
+		}
 
-    const int panel_y = 3;
-    const int panel_x = 1;
-    const int panel_h = max_y - 7;
-    const int panel_w = max_x - 2;
+		if (strlen(out) + 1 < out_size) {
+			const size_t remaining =
+				out_size - strlen(out) - 1;
 
-    ui_attr_on(UI_PANEL, A_NORMAL);
-    draw_box(panel_y, panel_x, panel_h, panel_w);
-    ui_attr_off(UI_PANEL, A_NORMAL);
+			strncat(out, menu->title, remaining);
+		}
+	}
+}
 
-    ui_attr_on(UI_PANEL_TITLE, A_BOLD);
-    mvaddnstr(panel_y, panel_x + 2, " Options ", panel_w - 4);
-    ui_attr_off(UI_PANEL_TITLE, A_BOLD);
+static void render(
+	ConfigState *state,
+	const MenuViewState *view,
+	const bool dirty,
+	const char *config_path,
+	const char *status
+) {
+	int max_y;
+	int max_x;
 
-    const int header_y = panel_y + 1;
-    const int list_y = panel_y + 2;
-    const int list_h = panel_h - 3;
+	getmaxyx(stdscr, max_y, max_x);
+	erase();
 
-    const int category_x = panel_x + 3;
-    const int prompt_x = panel_x + 18;
-    int value_x = max_x - 30;
+	if (max_y < 8 || max_x < 48) {
+		mvaddnstr(
+			0,
+			0,
+			"terminal is too small",
+			max_x - 1
+		);
 
-    if (value_x < prompt_x + 16) {
-        value_x = prompt_x + 16;
-    }
+		refresh();
+		return;
+	}
 
-    const int category_w = prompt_x - category_x - 1;
-    const int prompt_w = value_x - prompt_x - 2;
-    const int value_w = max_x - value_x - 3;
+	const ConfigMenu *menu =
+		&state->menus[view->current_menu];
 
-    ui_attr_on(UI_PANEL_TITLE, A_BOLD);
-    mvaddnstr(header_y, category_x, "Category", category_w);
-    mvaddnstr(header_y, prompt_x, "Option", prompt_w);
-    mvaddnstr(header_y, value_x, "Value", value_w);
-    ui_attr_off(UI_PANEL_TITLE, A_BOLD);
+	const int selected =
+		view->selected[view->current_menu];
 
-    for (int row = 0; row < list_h; row++) {
-        const int option_index = offset + row;
-        const int y = list_y + row;
+	const int offset =
+		view->offset[view->current_menu];
 
-        draw_fill(y, panel_x + 1, panel_w - 2);
+	ui_attr_on(UI_HEADER, A_BOLD);
 
-        if (option_index >= (int)state->option_count) {
-            continue;
-        }
+	draw_fill(0, 0, max_x);
 
-        ConfigOption *option = &state->options[option_index];
+	mvaddnstr(
+		0,
+		2,
+		"mochiOS BuildConfig",
+		max_x - 4
+	);
 
-        char value[VALUE_SIZE + 8];
-        option_display_value(option, value);
+	draw_right_text(
+		0,
+		dirty ? "[modified]" : "[clean]",
+		max_x
+	);
 
-        const bool is_selected = option_index == selected;
+	ui_attr_off(UI_HEADER, A_BOLD);
 
-        if (is_selected) {
-            ui_attr_on(UI_SELECTED, A_BOLD);
-            draw_fill(y, panel_x + 1, panel_w - 2);
-            mvaddnstr(y, panel_x + 2, ">", 1);
-            mvaddnstr(y, category_x, option->category, category_w);
-            mvaddnstr(y, prompt_x, option->prompt, prompt_w);
-            mvaddnstr(y, value_x, value, value_w);
-            ui_attr_off(UI_SELECTED, A_BOLD);
-        } else {
-            ui_attr_on(UI_CATEGORY, A_NORMAL);
-            mvaddnstr(y, category_x, option->category, category_w);
-            ui_attr_off(UI_CATEGORY, A_NORMAL);
+	char menu_path[MAX_LINE];
 
-            ui_attr_on(UI_NORMAL, A_NORMAL);
-            mvaddnstr(y, prompt_x, option->prompt, prompt_w);
-            ui_attr_off(UI_NORMAL, A_NORMAL);
+	build_menu_path(
+		state,
+		view->current_menu,
+		menu_path,
+		sizeof(menu_path)
+	);
 
-            ui_attr_on(UI_VALUE, A_NORMAL);
-            mvaddnstr(y, value_x, value, value_w);
-            ui_attr_off(UI_VALUE, A_NORMAL);
-        }
-    }
+	ui_attr_on(UI_NORMAL, A_NORMAL);
 
-    int progress_y = max_y - 4;
-    char progress[64];
+	draw_fill(1, 0, max_x);
+	mvaddnstr(1, 2, menu_path, max_x - 4);
 
-    snprintf(
-        progress,
-        sizeof(progress),
-        "%d/%zu",
-        selected + 1,
-        state->option_count
-    );
+	ui_attr_off(UI_NORMAL, A_NORMAL);
 
-    ui_attr_on(UI_NORMAL, A_DIM);
-    mvaddnstr(progress_y, 2, progress, max_x - 4);
-    ui_attr_off(UI_NORMAL, A_DIM);
+	const int panel_y = 3;
+	const int panel_x = 1;
+	const int panel_h = max_y - 7;
+	const int panel_w = max_x - 2;
 
-    const int footer_y = max_y - 2;
+	ui_attr_on(UI_PANEL, A_NORMAL);
+	draw_box(panel_y, panel_x, panel_h, panel_w);
+	ui_attr_off(UI_PANEL, A_NORMAL);
 
-    ui_attr_on(UI_FOOTER, A_NORMAL);
-    draw_fill(footer_y, 0, max_x);
-    mvaddnstr(
-        footer_y,
-        2,
-        "Up/Down: move   Space: toggle/next   Enter: edit/next   s: save   q: quit",
-        max_x - 4
-    );
-    ui_attr_off(UI_FOOTER, A_NORMAL);
+	char panel_title[MENU_TITLE_SIZE + 4];
 
-    draw_fill(max_y - 1, 0, max_x);
+	snprintf(
+		panel_title,
+		sizeof(panel_title),
+		" %s ",
+		menu->title
+	);
 
-    if (status[0] != '\0') {
-        ui_attr_on(UI_STATUS, A_BOLD);
-        mvaddnstr(max_y - 1, 2, status, max_x - 4);
-        ui_attr_off(UI_STATUS, A_BOLD);
-    } else if (dirty) {
-        ui_attr_on(UI_DIRTY, A_NORMAL);
-        mvaddnstr(max_y - 1, 2, "Unsaved changes", max_x - 4);
-        ui_attr_off(UI_DIRTY, A_NORMAL);
-    } else {
-        ui_attr_on(UI_NORMAL, A_DIM);
-        mvaddnstr(max_y - 1, 2, "Ready", max_x - 4);
-        ui_attr_off(UI_NORMAL, A_DIM);
-    }
+	ui_attr_on(UI_PANEL_TITLE, A_BOLD);
 
-    refresh();
+	mvaddnstr(
+		panel_y,
+		panel_x + 2,
+		panel_title,
+		panel_w - 4
+	);
+
+	ui_attr_off(UI_PANEL_TITLE, A_BOLD);
+
+	const int list_y = panel_y + 1;
+	const int list_h = panel_h - 2;
+	const int marker_x = panel_x + 2;
+	const int prompt_x = panel_x + 5;
+
+	int value_x = max_x - 30;
+
+	if (value_x < prompt_x + 16) {
+		value_x = prompt_x + 16;
+	}
+
+	const int prompt_w =
+		value_x - prompt_x - 2;
+
+	const int value_w =
+		max_x - value_x - 3;
+
+	for (int row = 0; row < list_h; row++) {
+		const int item_index = offset + row;
+		const int y = list_y + row;
+
+		draw_fill(
+			y,
+			panel_x + 1,
+			panel_w - 2
+		);
+
+		if (item_index >= (int)menu->child_count) {
+			continue;
+		}
+
+		const MenuItem *item =
+			&menu->children[item_index];
+
+		const bool is_selected =
+			item_index == selected;
+
+		if (is_selected) {
+			ui_attr_on(UI_SELECTED, A_BOLD);
+
+			draw_fill(
+				y,
+				panel_x + 1,
+				panel_w - 2
+			);
+
+			mvaddnstr(
+				y,
+				marker_x,
+				">",
+				1
+			);
+		}
+
+		if (item->type == MENU_ITEM_SUBMENU) {
+			const ConfigMenu *submenu =
+				&state->menus[item->index];
+
+			mvaddnstr(
+				y,
+				prompt_x,
+				submenu->title,
+				prompt_w
+			);
+
+			mvaddnstr(
+				y,
+				value_x,
+				"--->",
+				value_w
+			);
+		} else {
+			const ConfigOption *option =
+				&state->options[item->index];
+
+			char value[VALUE_SIZE + 8];
+
+			option_display_value(option, value);
+
+			mvaddnstr(
+				y,
+				prompt_x,
+				option->prompt,
+				prompt_w
+			);
+
+			mvaddnstr(
+				y,
+				value_x,
+				value,
+				value_w
+			);
+		}
+
+		if (is_selected) {
+			ui_attr_off(UI_SELECTED, A_BOLD);
+		}
+	}
+
+	char progress[64];
+
+	snprintf(
+		progress,
+		sizeof(progress),
+		"%d/%zu",
+		menu->child_count == 0 ? 0 : selected + 1,
+		menu->child_count
+	);
+
+	ui_attr_on(UI_NORMAL, A_DIM);
+
+	mvaddnstr(
+		max_y - 4,
+		2,
+		progress,
+		max_x - 4
+	);
+
+	ui_attr_off(UI_NORMAL, A_DIM);
+
+	const int footer_y = max_y - 2;
+
+	ui_attr_on(UI_FOOTER, A_NORMAL);
+	draw_fill(footer_y, 0, max_x);
+
+	mvaddnstr(
+		footer_y,
+		2,
+		"Up/Down: move   Enter/Right: open/edit   Space: toggle   Esc/Left: back   s: save   q: quit",
+		max_x - 4
+	);
+
+	ui_attr_off(UI_FOOTER, A_NORMAL);
+
+	draw_fill(max_y - 1, 0, max_x);
+
+	if (status[0] != '\0') {
+		ui_attr_on(UI_STATUS, A_BOLD);
+
+		mvaddnstr(
+			max_y - 1,
+			2,
+			status,
+			max_x - 4
+		);
+
+		ui_attr_off(UI_STATUS, A_BOLD);
+	} else if (dirty) {
+		ui_attr_on(UI_DIRTY, A_NORMAL);
+
+		mvaddnstr(
+			max_y - 1,
+			2,
+			"Unsaved changes",
+			max_x - 4
+		);
+
+		ui_attr_off(UI_DIRTY, A_NORMAL);
+	} else {
+		ui_attr_on(UI_NORMAL, A_DIM);
+
+		mvaddnstr(
+			max_y - 1,
+			2,
+			config_path,
+			max_x - 4
+		);
+
+		ui_attr_off(UI_NORMAL, A_DIM);
+	}
+
+	refresh();
 }
 
 static void toggle_bool(ConfigOption *option) {
@@ -861,124 +1279,216 @@ static void usage(const char *program) {
 }
 
 int main(const int argc, char **argv) {
-    const char *schema_path = NULL;
-    const char *config_path = NULL;
+	const char *schema_path = NULL;
+	const char *config_path = NULL;
 
-    for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "--schema") == 0 && i + 1 < argc) {
-            schema_path = argv[++i];
-        } else if (strcmp(argv[i], "--config") == 0 && i + 1 < argc) {
-            config_path = argv[++i];
-        } else {
-            usage(argv[0]);
-            return 1;
-        }
-    }
+	for (int i = 1; i < argc; i++) {
+		if (
+			strcmp(argv[i], "--schema") == 0 &&
+			i + 1 < argc
+		) {
+			schema_path = argv[++i];
+		} else if (
+			strcmp(argv[i], "--config") == 0 &&
+			i + 1 < argc
+		) {
+			config_path = argv[++i];
+		} else {
+			usage(argv[0]);
+			return 1;
+		}
+	}
 
-    if (schema_path == NULL || config_path == NULL) {
-        usage(argv[0]);
-        return 1;
-    }
+	if (schema_path == NULL || config_path == NULL) {
+		usage(argv[0]);
+		return 1;
+	}
 
-    ConfigState state = {0};
+	ConfigState state = {0};
 
-    if (!load_schema(&state, schema_path)) {
-        return 1;
-    }
+	if (!load_schema(&state, schema_path)) {
+		return 1;
+	}
 
-    if (state.option_count == 0) {
-        fprintf(stderr, "schema has no options\n");
-        return 1;
-    }
+	if (state.option_count == 0) {
+		fprintf(stderr, "schema has no options\n");
+		return 1;
+	}
 
-    load_config(&state, config_path);
+	load_config(&state, config_path);
 
-    setlocale(LC_ALL, "");
+	setlocale(LC_ALL, "");
 
-    initscr();
-    init_ui_theme();
-    cbreak();
-    noecho();
-    keypad(stdscr, TRUE);
-    curs_set(0);
+	initscr();
+	init_ui_theme();
+	cbreak();
+	noecho();
+	keypad(stdscr, TRUE);
+	curs_set(0);
 
-    bool dirty = false;
-    int selected = 0;
-    int offset = 0;
-    char status[256] = "";
+	bool dirty = false;
+	MenuViewState view = {0};
+	char status[256] = "";
 
-    for (;;) {
-        int max_y;
-        int max_x;
+	for (;;) {
+		int max_y;
+		int max_x;
 
-        getmaxyx(stdscr, max_y, max_x);
+		getmaxyx(stdscr, max_y, max_x);
 
-        int visible = max_y - 6;
+		ConfigMenu *menu =
+			&state.menus[view.current_menu];
 
-        if (visible < 1) {
-            visible = 1;
-        }
+		int *selected =
+			&view.selected[view.current_menu];
 
-        if (selected < offset) {
-            offset = selected;
-        }
+		int *offset =
+			&view.offset[view.current_menu];
 
-        if (selected >= offset + visible) {
-            offset = selected - visible + 1;
-        }
+		int visible = max_y - 8;
 
-        render(&state, selected, offset, dirty, config_path, status);
-        status[0] = '\0';
+		if (visible < 1) {
+			visible = 1;
+		}
 
-        const int ch = getch();
-        ConfigOption *option = &state.options[selected];
+		if (menu->child_count == 0) {
+			*selected = 0;
+			*offset = 0;
+		} else {
+			if (*selected >= (int)menu->child_count) {
+				*selected =
+					(int)menu->child_count - 1;
+			}
 
-        if (ch == KEY_UP || ch == 'k') {
-            if (selected > 0) {
-                selected--;
-            }
-        } else if (ch == KEY_DOWN || ch == 'j') {
-            if (selected + 1 < (int)state.option_count) {
-                selected++;
-            }
-        } else if (ch == ' ') {
-            if (option->type == OPT_BOOL) {
-                toggle_bool(option);
-                dirty = true;
-            } else if (option->type == OPT_CHOICE) {
-                cycle_choice(option);
-                dirty = true;
-            }
-        } else if (ch == '\n' || ch == '\r' || ch == KEY_ENTER) {
-            if (option->type == OPT_STRING) {
-                edit_string(option);
-                dirty = true;
-            } else if (option->type == OPT_BOOL) {
-                toggle_bool(option);
-                dirty = true;
-            } else if (option->type == OPT_CHOICE) {
-                cycle_choice(option);
-                dirty = true;
-            }
-        } else if (ch == 's' || ch == 'S') {
-            char error[ERROR_SIZE];
+			if (*selected < *offset) {
+				*offset = *selected;
+			}
 
-            if (save_config(&state, config_path, error)) {
-                dirty = false;
-                copy_string(status, sizeof(status), "saved");
-            } else {
-                copy_string(status, sizeof(status), error);
-            }
-        } else if (ch == 'q' || ch == 'Q') {
-            if (!dirty || confirm_discard()) {
-                break;
-            }
-        }
+			if (*selected >= *offset + visible) {
+				*offset =
+					*selected - visible + 1;
+			}
+		}
 
-        (void)max_x;
-    }
+		render(
+			&state,
+			&view,
+			dirty,
+			config_path,
+			status
+		);
 
-    endwin();
+		status[0] = '\0';
 
-    return 0;
+		const int ch = getch();
+
+		if (ch == KEY_UP || ch == 'k') {
+			if (*selected > 0) {
+				(*selected)--;
+			}
+		} else if (ch == KEY_DOWN || ch == 'j') {
+			if (
+				*selected + 1 <
+				(int)menu->child_count
+			) {
+				(*selected)++;
+			}
+		} else if (
+			ch == 27 ||
+			ch == KEY_LEFT ||
+			ch == 'h'
+		) {
+			if (menu->parent >= 0) {
+				view.current_menu = menu->parent;
+			}
+		} else if (
+			ch == ' ' &&
+			menu->child_count > 0
+		) {
+			MenuItem *item =
+				&menu->children[*selected];
+
+			if (item->type == MENU_ITEM_OPTION) {
+				ConfigOption *option =
+					&state.options[item->index];
+
+				if (option->type == OPT_BOOL) {
+					toggle_bool(option);
+					dirty = true;
+				} else if (
+					option->type == OPT_CHOICE
+				) {
+					cycle_choice(option);
+					dirty = true;
+				}
+			}
+		} else if (
+			(
+				ch == '\n' ||
+				ch == '\r' ||
+				ch == KEY_ENTER ||
+				ch == KEY_RIGHT ||
+				ch == 'l'
+			) &&
+			menu->child_count > 0
+		) {
+			MenuItem *item =
+				&menu->children[*selected];
+
+			if (item->type == MENU_ITEM_SUBMENU) {
+				view.current_menu =
+					(int)item->index;
+			} else {
+				ConfigOption *option =
+					&state.options[item->index];
+
+				if (option->type == OPT_STRING) {
+					edit_string(option);
+					dirty = true;
+				} else if (
+					option->type == OPT_BOOL
+				) {
+					toggle_bool(option);
+					dirty = true;
+				} else if (
+					option->type == OPT_CHOICE
+				) {
+					cycle_choice(option);
+					dirty = true;
+				}
+			}
+		} else if (ch == 's' || ch == 'S') {
+			char error[ERROR_SIZE];
+
+			if (save_config(
+				&state,
+				config_path,
+				error
+			)) {
+				dirty = false;
+
+				copy_string(
+					status,
+					sizeof(status),
+					"saved"
+				);
+			} else {
+				copy_string(
+					status,
+					sizeof(status),
+					error
+				);
+			}
+		} else if (ch == 'q' || ch == 'Q') {
+			if (!dirty || confirm_discard()) {
+				break;
+			}
+		}
+
+		(void)max_x;
+	}
+
+	endwin();
+
+	return 0;
 }
