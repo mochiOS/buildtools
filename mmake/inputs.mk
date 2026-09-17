@@ -24,12 +24,31 @@ fonts-inputs:
 	@watch libraries/fonts/scripts/**
 
 rust-source-state:
-	@always
+	@watch libraries/rust/library/**
+	@watch libraries/rust/src/mochios-backtrace/**
+	@watch libraries/rust/src/mochios-libunwind/**
+	@watch libraries/rust/vendor/rustc-literal-escaper/**
+	@watch scripts/mmake/source-fingerprint.sh
 	@output $(MMAKE_OUT)/fingerprints/rust.sha256
 	$(SCRIPTS)/mmake/source-fingerprint.sh $(ROOT)/libraries/rust $(MMAKE_OUT)/fingerprints/rust.sha256
 
 newlib-source-state:
-	@always
+	@watch libraries/newlib/Makefile.def
+	@watch libraries/newlib/Makefile.in
+	@watch libraries/newlib/Makefile.tpl
+	@watch libraries/newlib/config/**
+	@watch libraries/newlib/configure
+	@watch libraries/newlib/configure.ac
+	@watch libraries/newlib/include/**
+	@watch libraries/newlib/libgloss/**
+	@watch libraries/newlib/newlib/**
+	@watch libraries/newlib/libtool.m4
+	@watch libraries/newlib/ltgcc.m4
+	@watch libraries/newlib/ltoptions.m4
+	@watch libraries/newlib/ltsugar.m4
+	@watch libraries/newlib/ltversion.m4
+	@watch libraries/newlib/lt~obsolete.m4
+	@watch scripts/mmake/source-fingerprint.sh
 	@output $(MMAKE_OUT)/fingerprints/newlib.sha256
 	$(SCRIPTS)/mmake/source-fingerprint.sh $(ROOT)/libraries/newlib $(MMAKE_OUT)/fingerprints/newlib.sha256
 
