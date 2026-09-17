@@ -107,4 +107,4 @@ services-bundle: services-inputs runtime rust-sysroot
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/user-service
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/Cargo.toml --workspace
 
-services: services-bundle
+services: capability compositor core-service display drivers-service input linux-service logger mboot-agent network package-service secure-ui service-manager signature tty update-service user-service
