@@ -51,6 +51,7 @@ programs: applications-inputs services-inputs runtime rust-sysroot viewkit
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/compositor
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/network
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/user-service
+	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/appstore
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/binder
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/files
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/installer
@@ -62,6 +63,7 @@ programs: applications-inputs services-inputs runtime rust-sysroot viewkit
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/mpk
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/rust-std-demo
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/Cargo.toml --workspace
+	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/appstore/Cargo.toml --bin appstore
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/binder/Cargo.toml --bin binder
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/file/Cargo.toml --bin files
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/installer/Cargo.toml --bin installer

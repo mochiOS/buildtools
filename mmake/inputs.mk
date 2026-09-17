@@ -122,7 +122,14 @@ terminal-inputs: viewkit-inputs
 	@watch applications/terminal/about.toml
 	@watch applications/terminal/manifest.toml
 
-applications-inputs: binder-inputs files-inputs installer-inputs settings-inputs terminal-inputs
+appstore-inputs: viewkit-inputs
+	@watch applications/appstore/Cargo.toml
+	@watch applications/appstore/src/**
+	@watch applications/appstore/appicon.svg
+	@watch applications/appstore/about.toml
+	@watch applications/appstore/manifest.toml
+
+applications-inputs: appstore-inputs binder-inputs files-inputs installer-inputs settings-inputs terminal-inputs
 	@watch applications/test.app/Cargo.toml
 	@watch applications/test.app/Cargo.lock
 	@watch applications/test.app/src/**
