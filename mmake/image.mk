@@ -28,6 +28,7 @@ esp: bootloader kernel initfs config
 
 disk-image: esp rootfs config
 	@watch scripts/mmake/make-disk-image.sh
+	@watch scripts/mmake/patch-disk-partition.py
 	@output $(MMAKE_OUT)/image/disk.img
 	$(SCRIPTS)/mmake/make-disk-image.sh $(ROOT) $(MMAKE_OUT)
 
