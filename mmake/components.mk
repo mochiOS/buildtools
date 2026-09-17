@@ -7,7 +7,7 @@ runtime: runtime-inputs
 	@output $(OUT)/newlib-port/sdk/lib/crt0.o
 	@output $(OUT)/newlib-port/sdk/lib/libmochi_user_newlib_runtime.a
 	@output $(OUT)/newlib-port/sdk/lib/linker.ld
-	bash $(ROOT)/user/scripts/build-newlib.sh --newlib-source $(ROOT)/libraries/newlib --output $(OUT)/newlib-port --abi-source $(ROOT)/core/crates/abi --toolchain nightly-2026-05-14 --jobs $MMAKE_JOBS
+	env CARGO_HOME=$(MMAKE_CARGO_HOME) CARGO_NET_OFFLINE=true bash $(ROOT)/user/scripts/build-newlib.sh --newlib-source $(ROOT)/libraries/newlib --output $(OUT)/newlib-port --abi-source $(ROOT)/core/crates/abi --toolchain nightly-2026-05-14 --jobs $(JOBS)
 
 rust-sysroot: runtime-inputs
 	@watch scripts/mmake/prepare-rust-sysroot.sh

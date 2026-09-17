@@ -1,7 +1,7 @@
-rootfs-stage: programs drivers fonts filesystem-inputs
+rootfs-stage: programs drivers fonts filesystem-inputs msign-tool
 	@watch scripts/mmake/stage-rootfs.sh
 	@output $(MMAKE_OUT)/image/rootfs/.ready
-	$(SCRIPTS)/mmake/stage-rootfs.sh $(ROOT) $(MMAKE_OUT)
+	$(SCRIPTS)/mmake/stage-rootfs.sh $(ROOT) $(MMAKE_OUT) $(MSIGN)
 
 initfs-stage: core-service cexts rootfs
 	@watch boot/config/kernel.conf
