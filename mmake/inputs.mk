@@ -108,7 +108,6 @@ binder-inputs: viewkit-inputs
 
 files-inputs: viewkit-inputs
 	@watch applications/file/Cargo.toml
-	@watch applications/file/Cargo.lock
 	@watch applications/file/src/**
 	@watch applications/file/resources/**
 	@watch applications/file/appicon.svg
