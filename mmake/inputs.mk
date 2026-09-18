@@ -1,7 +1,4 @@
-cargo-config-inputs:
-	@watch .cargo/config.toml
-
-kernel-inputs: config cargo-config-inputs
+kernel-inputs: config
 	@watch .config
 	@watch core/Cargo.toml
 	@watch core/Cargo.lock
@@ -12,7 +9,7 @@ kernel-inputs: config cargo-config-inputs
 	@watch core/domain.ld
 	@watch core/x86_64-mochios.json
 
-boot-inputs: config cargo-config-inputs
+boot-inputs: config
 	@watch .config
 	@watch boot/Cargo.toml
 	@watch boot/Cargo.lock
@@ -55,7 +52,7 @@ newlib-source-state:
 	@output $(MMAKE_OUT)/fingerprints/newlib.sha256
 	$(SCRIPTS)/mmake/source-fingerprint.sh $(ROOT)/libraries/newlib $(MMAKE_OUT)/fingerprints/newlib.sha256
 
-runtime-inputs: config cargo-config-inputs rust-source-state newlib-source-state
+runtime-inputs: config rust-source-state newlib-source-state
 	@watch .config
 	@watch build/rust-std-toolchain
 	@watch out/mmake/fingerprints/rust.sha256
