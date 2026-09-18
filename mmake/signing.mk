@@ -4,20 +4,21 @@ MPACK := $(HOST_TOOLS_DIR)/release/mpack
 PACKAGE ?=
 PACKAGE_MANIFEST ?=
 PACKAGE_PAYLOAD ?=
+SIGNING_CARGO_PATCHES := --config "patch.\"https://github.com/mochiOS/syscalls\".mochios-certificate.path='$(ROOT)/user/crates/certificate'"
 
 msign-tool:
 	@watch tools/devkit/Cargo.toml
 	@watch tools/devkit/Cargo.lock
 	@watch tools/devkit/crates/msign/**
 	@output $(MSIGN)
-	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS=$(JOBS) cargo build --offline --release --manifest-path $(ROOT)/tools/devkit/Cargo.toml --package msign --target-dir $(HOST_TOOLS_DIR)
+	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS=$(JOBS) cargo build --offline $(SIGNING_CARGO_PATCHES) --release --manifest-path $(ROOT)/tools/devkit/Cargo.toml --package msign --target-dir $(HOST_TOOLS_DIR)
 
 mpack-tool:
 	@watch tools/devkit/Cargo.toml
 	@watch tools/devkit/Cargo.lock
 	@watch tools/devkit/crates/mpack/**
 	@output $(MPACK)
-	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS=$(JOBS) cargo build --offline --release --manifest-path $(ROOT)/tools/devkit/Cargo.toml --package mpack --target-dir $(HOST_TOOLS_DIR)
+	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS=$(JOBS) cargo build --offline $(SIGNING_CARGO_PATCHES) --release --manifest-path $(ROOT)/tools/devkit/Cargo.toml --package mpack --target-dir $(HOST_TOOLS_DIR)
 
 # PACKAGE is deliberately the only build-time input.  Key and certificate paths
 # are selected by msign from the per-user identity store and never belong in the
