@@ -71,7 +71,6 @@ viewkit-inputs: runtime-inputs fonts-inputs
 	@watch version.toml
 	@watch mboot/Cargo.toml
 	@watch libraries/viewkit/Cargo.toml
-	@watch libraries/viewkit/Cargo.lock
 	@watch libraries/viewkit/build.rs
 	@watch libraries/viewkit/src/**
 
