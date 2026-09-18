@@ -144,7 +144,6 @@ terminal-inputs: viewkit-inputs
 appstore-inputs: viewkit-inputs
 	@watch applications/appstore/Cargo.toml
 	@watch applications/appstore/src/**
-	@watch applications/appstore/appicon.svg
 	@watch applications/appstore/about.toml
 	@watch applications/appstore/manifest.toml
 
