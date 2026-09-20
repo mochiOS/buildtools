@@ -72,6 +72,8 @@ viewkit-inputs: runtime-inputs fonts-inputs
 	@watch mboot/Cargo.toml
 	@watch libraries/viewkit/Cargo.toml
 	@watch libraries/viewkit/build.rs
+	@watch libraries/viewkit/resources/var/**
+	@watch libraries/viewkit/resources/symbols/**
 	@watch libraries/viewkit/src/**
 
 services-inputs: runtime-inputs
@@ -169,6 +171,7 @@ cext-inputs: runtime-inputs
 	@watch cexts/Cargo.toml
 	@watch cexts/Cargo.lock
 	@watch cexts/crates/**
+	@watch cexts/modules/**
 	@watch cexts/disk.cext/**
 	@watch cexts/ext2.cext/**
 	@watch scripts/pack-cext.pl

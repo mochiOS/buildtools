@@ -18,11 +18,19 @@ smoke-test-tcg: image smoke-log-test
 
 ext2-write-test: image
 	@always
-	QEMU_ACCELERATOR=kvm $(SCRIPTS)/ext2-write-test.sh
+	QEMU_ACCELERATOR=kvm MSIGN="$(MSIGN)" $(SCRIPTS)/ext2-write-test.sh
+
+ext2-write-fixture-test: image
+	@always
+	EXT2_TEST_PREPARE_ONLY=1 MSIGN="$(MSIGN)" $(SCRIPTS)/ext2-write-test.sh
+
+ext2-cext-test:
+	@always
+	cargo test --offline --manifest-path $(ROOT)/cexts/Cargo.toml --target-dir $(MMAKE_OUT)/targets/ext2-cext-host --config "patch.\"https://github.com/mochiOS/cexts\".mochi-cext-abi.path='$(ROOT)/cexts/crates/cext-abi'" -p mochi-ext2-cext --lib
 
 ext2-write-test-tcg: image
 	@always
-	QEMU_ACCELERATOR=tcg $(SCRIPTS)/ext2-write-test.sh
+	QEMU_ACCELERATOR=tcg MSIGN="$(MSIGN)" $(SCRIPTS)/ext2-write-test.sh
 
 tls-http-smoke-test: config smoke-log-test
 	@always
@@ -39,3 +47,68 @@ developer-pki-sync-smoke-test:
 developer-pki-production-e2e:
 	@always
 	$(SCRIPTS)/developer-pki-production-e2e.sh
+
+diagnostics-test:
+	@always
+	cargo test --offline --manifest-path $(ROOT)/services/update/Cargo.toml --lib
+
+http-client-test:
+	@always
+	cargo test --offline $(CARGO_PATCHES) --manifest-path $(ROOT)/user/crates/http-client/Cargo.toml --lib
+
+boot-selection-test:
+	@always
+	cargo test --offline --manifest-path $(ROOT)/boot/crates/boot-selection/Cargo.toml --lib
+
+ab-slot-selection-test:
+	@always
+	cargo test --offline --manifest-path $(ROOT)/core/crates/abi/Cargo.toml --lib
+	cargo test --offline --manifest-path $(ROOT)/cexts/Cargo.toml -p mochi-ext2-cext --lib --config "patch.\"https://github.com/mochiOS/cexts\".mochi-cext-abi.path='$(ROOT)/cexts/crates/cext-abi'"
+
+ab-layout-test: ab-layout-image boot-selection-gpt-probe
+	@watch scripts/tests/ab-layout-test.sh
+	@always
+	bash $(SCRIPTS)/tests/ab-layout-test.sh $(MMAKE_OUT)/image/ab-layout.img $(MMAKE_OUT)/image/ab-esp.img $(MMAKE_OUT)/image/rootfs.img $(MMAKE_OUT)/components/boot-selection-seed $(MMAKE_OUT)/components/kernel.elf $(MMAKE_OUT)/components/kernel.meta $(MMAKE_OUT)/image/initfs.img $(MMAKE_OUT)/components/boot-selection-gpt-probe
+
+ab-layout-smoke-test-kvm: ab-layout-test smoke-log-test
+	@watch scripts/tests/ab-layout-kvm-test.sh
+	@always
+	bash $(SCRIPTS)/tests/ab-layout-kvm-test.sh $(ROOT) $(MMAKE_OUT)/image/ab-layout.img
+
+ab-slot-b-test: ab-slot-b-image ab-layout-test
+	@watch scripts/tests/ab-slot-b-test.sh
+	@always
+	bash $(SCRIPTS)/tests/ab-slot-b-test.sh $(MMAKE_OUT) $(MMAKE_OUT)/components/boot-selection-seed
+
+ab-trial-b-test: ab-trial-b-image ab-layout-test
+	@watch scripts/tests/ab-slot-b-test.sh
+	@always
+	bash $(SCRIPTS)/tests/ab-slot-b-test.sh $(MMAKE_OUT) $(MMAKE_OUT)/components/boot-selection-seed trial
+
+ab-trial-confirm-test: ab-trial-b-test boot-selection-confirm-test
+	@watch scripts/tests/ab-trial-confirm-test.sh
+	@always
+	bash $(SCRIPTS)/tests/ab-trial-confirm-test.sh $(MMAKE_OUT) $(MMAKE_OUT)/components/boot-selection-seed $(MMAKE_OUT)/components/boot-selection-confirm-test
+
+ab-slot-b-smoke-test-kvm: ab-slot-b-test smoke-log-test
+	@watch scripts/tests/ab-layout-kvm-test.sh
+	@always
+	bash $(SCRIPTS)/tests/ab-layout-kvm-test.sh $(ROOT) $(MMAKE_OUT)/image/ab-slot-b.img B
+
+ab-boot-slot-smoke-test-kvm: ab-slot-b-test smoke-log-test
+	@watch scripts/tests/ab-layout-kvm-test.sh
+	@watch scripts/tests/ab-boot-slot-kvm-test.sh
+	@always
+	bash $(SCRIPTS)/tests/ab-boot-slot-kvm-test.sh $(ROOT) $(MMAKE_OUT)/image/ab-slot-b.img
+
+ab-trial-rollback-smoke-test-kvm: ab-trial-b-test smoke-log-test
+	@watch scripts/tests/ab-layout-kvm-test.sh
+	@watch scripts/tests/ab-trial-rollback-kvm-test.sh
+	@always
+	bash $(SCRIPTS)/tests/ab-trial-rollback-kvm-test.sh $(ROOT) $(MMAKE_OUT)/image/ab-trial-b.img
+
+ab-trial-confirm-smoke-test-kvm: ab-trial-confirm-test smoke-log-test
+	@watch scripts/tests/ab-layout-kvm-test.sh
+	@watch scripts/tests/ab-trial-confirm-kvm-test.sh
+	@always
+	bash $(SCRIPTS)/tests/ab-trial-confirm-kvm-test.sh $(ROOT) $(MMAKE_OUT)/image/ab-trial-b.img $(MMAKE_OUT)/components/boot-selection-confirm-test

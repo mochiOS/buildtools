@@ -79,6 +79,7 @@ tty: runtime rust-sysroot
 
 update-service: runtime rust-sysroot
 	@watch services/update/**
+	@watch version.toml
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/update
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/update/Cargo.toml --bin update
 

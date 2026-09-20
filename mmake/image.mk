@@ -1,5 +1,6 @@
 rootfs-stage: programs drivers fonts filesystem-inputs msign-tool
 	@watch scripts/mmake/stage-rootfs.sh
+	@watch scripts/mmake/development-users.db
 	@output $(MMAKE_OUT)/image/rootfs/.ready
 	$(SCRIPTS)/mmake/stage-rootfs.sh $(ROOT) $(MMAKE_OUT) $(MSIGN)
 
@@ -31,6 +32,57 @@ disk-image: esp rootfs config
 	@watch scripts/mmake/patch-disk-partition.py
 	@output $(MMAKE_OUT)/image/disk.img
 	$(SCRIPTS)/mmake/make-disk-image.sh $(ROOT) $(MMAKE_OUT)
+
+# Separate, non-release A/B partition prototype. Never replace `disk-image`.
+boot-selection-seed:
+	@watch boot/crates/boot-selection/Cargo.toml
+	@watch boot/crates/boot-selection/src/lib.rs
+	@watch boot/crates/boot-selection/src/storage.rs
+	@watch boot/crates/boot-selection/src/bin/seed.rs
+	@output $(MMAKE_OUT)/components/boot-selection-seed
+	mkdir -p $(MMAKE_OUT)/components
+	cargo build --offline --release --manifest-path $(ROOT)/boot/crates/boot-selection/Cargo.toml --target-dir $(MMAKE_OUT)/targets/boot-selection-host --bin boot-selection-seed
+	install -m 0755 $(MMAKE_OUT)/targets/boot-selection-host/release/boot-selection-seed $(MMAKE_OUT)/components/boot-selection-seed
+
+boot-selection-confirm-test:
+	@watch boot/crates/boot-selection/Cargo.toml
+	@watch boot/crates/boot-selection/src/lib.rs
+	@watch boot/crates/boot-selection/src/storage.rs
+	@watch boot/crates/boot-selection/src/bin/confirm_test.rs
+	@output $(MMAKE_OUT)/components/boot-selection-confirm-test
+	mkdir -p $(MMAKE_OUT)/components
+	cargo build --offline --release --manifest-path $(ROOT)/boot/crates/boot-selection/Cargo.toml --target-dir $(MMAKE_OUT)/targets/boot-selection-host --bin boot-selection-confirm-test
+	install -m 0755 $(MMAKE_OUT)/targets/boot-selection-host/release/boot-selection-confirm-test $(MMAKE_OUT)/components/boot-selection-confirm-test
+
+boot-selection-gpt-probe:
+	@watch boot/crates/boot-selection/Cargo.toml
+	@watch boot/crates/boot-selection/src/lib.rs
+	@watch boot/crates/boot-selection/src/gpt_identity.rs
+	@watch boot/crates/boot-selection/src/bin/gpt_probe.rs
+	@output $(MMAKE_OUT)/components/boot-selection-gpt-probe
+	mkdir -p $(MMAKE_OUT)/components
+	cargo build --offline --release --manifest-path $(ROOT)/boot/crates/boot-selection/Cargo.toml --target-dir $(MMAKE_OUT)/targets/boot-selection-host --bin boot-selection-gpt-probe
+	install -m 0755 $(MMAKE_OUT)/targets/boot-selection-host/release/boot-selection-gpt-probe $(MMAKE_OUT)/components/boot-selection-gpt-probe
+
+ab-esp: bootloader kernel initfs
+	@watch scripts/mmake/make-ab-esp-image.sh
+	@output $(MMAKE_OUT)/image/ab-esp.img
+	bash $(SCRIPTS)/mmake/make-ab-esp-image.sh $(ROOT) $(MMAKE_OUT)
+
+ab-layout-image: ab-esp rootfs boot-selection-seed config
+	@watch scripts/mmake/build-ab-layout-image.sh
+	@output $(MMAKE_OUT)/image/ab-layout.img
+	bash $(SCRIPTS)/mmake/build-ab-layout-image.sh $(ROOT) $(MMAKE_OUT) $(MMAKE_OUT)/components/boot-selection-seed
+
+ab-slot-b-image: ab-layout-image boot-selection-seed
+	@watch scripts/mmake/build-ab-slot-b-image.sh
+	@output $(MMAKE_OUT)/image/ab-slot-b.img
+	bash $(SCRIPTS)/mmake/build-ab-slot-b-image.sh $(MMAKE_OUT) $(MMAKE_OUT)/components/boot-selection-seed
+
+ab-trial-b-image: ab-layout-image boot-selection-seed
+	@watch scripts/mmake/build-ab-slot-b-image.sh
+	@output $(MMAKE_OUT)/image/ab-trial-b.img
+	bash $(SCRIPTS)/mmake/build-ab-slot-b-image.sh $(MMAKE_OUT) $(MMAKE_OUT)/components/boot-selection-seed trial
 
 artifacts: disk-image initfs kernel bootloader
 	@watch scripts/mmake/collect-artifacts.sh
