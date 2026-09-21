@@ -88,6 +88,11 @@ ab-layout-image: ab-esp rootfs boot-selection-seed system-image-sign-tool system
 	@output $(MMAKE_OUT)/image/ab-layout.img
 	bash $(SCRIPTS)/mmake/build-ab-layout-image.sh $(ROOT) $(MMAKE_OUT) $(MMAKE_OUT)/components/boot-selection-seed $(MMAKE_OUT)/components/system-image-sign $(MMAKE_OUT)/components/system-slot-image
 
+normal-update-payload: ab-layout-image
+	@watch scripts/mmake/build-update-payload.sh
+	@output $(MMAKE_OUT)/image/mochios-update.moupdate
+	bash $(SCRIPTS)/mmake/build-update-payload.sh $(MMAKE_OUT)/image/update-boot.img $(MMAKE_OUT)/image/update-system.img $(MMAKE_OUT)/image/mochios-update.moupdate
+
 ab-slot-b-image: ab-layout-image boot-selection-seed
 	@watch scripts/mmake/build-ab-slot-b-image.sh
 	@output $(MMAKE_OUT)/image/ab-slot-b.img
