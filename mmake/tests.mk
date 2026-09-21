@@ -80,6 +80,12 @@ system-signature-smoke-test-kvm: ab-layout-test smoke-log-test
 	@always
 	bash $(SCRIPTS)/tests/system-signature-kvm-test.sh $(ROOT) $(MMAKE_OUT)/image/ab-layout.img
 
+boot-assets-signature-smoke-test-kvm: ab-layout-test smoke-log-test
+	@watch scripts/tests/system-signature-kvm-test.sh
+	@always
+	bash $(SCRIPTS)/tests/system-signature-kvm-test.sh $(ROOT) $(MMAKE_OUT)/image/ab-layout.img kernel
+	bash $(SCRIPTS)/tests/system-signature-kvm-test.sh $(ROOT) $(MMAKE_OUT)/image/ab-layout.img initfs
+
 system-data-smoke-test-kvm: ab-layout-test smoke-log-test
 	@watch scripts/tests/system-data-kvm-test.sh
 	@always
