@@ -60,6 +60,10 @@ boot-selection-test:
 	@always
 	cargo test --offline --manifest-path $(ROOT)/boot/crates/boot-selection/Cargo.toml --lib
 
+system-image-test:
+	@always
+	cargo test --offline --manifest-path $(ROOT)/boot/Cargo.toml --package mochios-system-image --lib
+
 ab-slot-selection-test:
 	@always
 	cargo test --offline --manifest-path $(ROOT)/core/crates/abi/Cargo.toml --lib

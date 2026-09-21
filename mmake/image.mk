@@ -71,6 +71,13 @@ system-image-sign-tool:
 	cargo build --offline --release --manifest-path $(ROOT)/boot/Cargo.toml --target-dir $(MMAKE_OUT)/targets/system-image-host --package mochios-system-image --features std --bin system-image-sign
 	install -m 0755 $(MMAKE_OUT)/targets/system-image-host/release/system-image-sign $(MMAKE_OUT)/components/system-image-sign
 
+system-slot-image-tool:
+	@watch boot/Cargo.toml
+	@watch boot/crates/system-image/**
+	@output $(MMAKE_OUT)/components/system-slot-image
+	cargo build --offline --release --manifest-path $(ROOT)/boot/Cargo.toml --target-dir $(MMAKE_OUT)/targets/system-image-host --package mochios-system-image --features std --bin system-slot-image
+	install -m 0755 $(MMAKE_OUT)/targets/system-image-host/release/system-slot-image $(MMAKE_OUT)/components/system-slot-image
+
 ab-esp: bootloader kernel initfs
 	@watch scripts/mmake/make-ab-esp-image.sh
 	@output $(MMAKE_OUT)/image/ab-esp.img
