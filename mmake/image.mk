@@ -64,15 +64,22 @@ boot-selection-gpt-probe:
 	cargo build --offline --release --manifest-path $(ROOT)/boot/crates/boot-selection/Cargo.toml --target-dir $(MMAKE_OUT)/targets/boot-selection-host --bin boot-selection-gpt-probe
 	install -m 0755 $(MMAKE_OUT)/targets/boot-selection-host/release/boot-selection-gpt-probe $(MMAKE_OUT)/components/boot-selection-gpt-probe
 
+system-image-sign-tool:
+	@watch boot/Cargo.toml
+	@watch boot/crates/system-image/**
+	@output $(MMAKE_OUT)/components/system-image-sign
+	cargo build --offline --release --manifest-path $(ROOT)/boot/Cargo.toml --target-dir $(MMAKE_OUT)/targets/system-image-host --package mochios-system-image --features std --bin system-image-sign
+	install -m 0755 $(MMAKE_OUT)/targets/system-image-host/release/system-image-sign $(MMAKE_OUT)/components/system-image-sign
+
 ab-esp: bootloader kernel initfs
 	@watch scripts/mmake/make-ab-esp-image.sh
 	@output $(MMAKE_OUT)/image/ab-esp.img
 	bash $(SCRIPTS)/mmake/make-ab-esp-image.sh $(ROOT) $(MMAKE_OUT)
 
-ab-layout-image: ab-esp rootfs boot-selection-seed config
+ab-layout-image: ab-esp rootfs boot-selection-seed system-image-sign-tool config
 	@watch scripts/mmake/build-ab-layout-image.sh
 	@output $(MMAKE_OUT)/image/ab-layout.img
-	bash $(SCRIPTS)/mmake/build-ab-layout-image.sh $(ROOT) $(MMAKE_OUT) $(MMAKE_OUT)/components/boot-selection-seed
+	bash $(SCRIPTS)/mmake/build-ab-layout-image.sh $(ROOT) $(MMAKE_OUT) $(MMAKE_OUT)/components/boot-selection-seed $(MMAKE_OUT)/components/system-image-sign
 
 ab-slot-b-image: ab-layout-image boot-selection-seed
 	@watch scripts/mmake/build-ab-slot-b-image.sh

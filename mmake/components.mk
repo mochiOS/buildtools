@@ -29,5 +29,5 @@ kernel: kernel-inputs
 bootloader: boot-inputs
 	@output $(MMAKE_OUT)/components/BOOTX64.EFI
 	mkdir -p $(MMAKE_OUT)/components
-	RUSTFLAGS='--cfg curve25519_dalek_backend="serial"' cargo +nightly-2026-05-14 build --offline -Z build-std=core,alloc,compiler_builtins --release --target x86_64-unknown-uefi --target-dir $(MMAKE_OUT)/targets/bootloader --config "patch.\"https://github.com/mochiOS/mnu\".mnu-abi.path='$(ROOT)/core/crates/abi'" --manifest-path $(ROOT)/boot/Cargo.toml
+	features=uefi-dep; if grep -qx 'DEVELOPMENT_SYSTEM_SIGNATURES=y' $(ROOT)/.config; then features=$features,development-system-key; fi; RUSTFLAGS='--cfg curve25519_dalek_backend="serial"' cargo +nightly-2026-05-14 build --offline -Z build-std=core,alloc,compiler_builtins --release --target x86_64-unknown-uefi --target-dir $(MMAKE_OUT)/targets/bootloader --config "patch.\"https://github.com/mochiOS/mnu\".mnu-abi.path='$(ROOT)/core/crates/abi'" --manifest-path $(ROOT)/boot/Cargo.toml --features "$features"
 	if test -f $(MMAKE_OUT)/targets/bootloader/x86_64-unknown-uefi/release/boot.efi; then install -m 0644 $(MMAKE_OUT)/targets/bootloader/x86_64-unknown-uefi/release/boot.efi $(MMAKE_OUT)/components/BOOTX64.EFI; else install -m 0644 $(MMAKE_OUT)/targets/bootloader/x86_64-unknown-uefi/release/boot $(MMAKE_OUT)/components/BOOTX64.EFI; fi
