@@ -91,6 +91,11 @@ secure-boot-smoke-test-kvm: ab-layout-test smoke-log-test
 	@always
 	bash $(SCRIPTS)/tests/secure-boot-kvm-test.sh $(ROOT) $(MMAKE_OUT)/image/ab-layout.img $(MMAKE_OUT)/targets/bootloader/x86_64-unknown-uefi/release/boot.efi
 
+anti-rollback-smoke-test-kvm: ab-layout-test smoke-log-test
+	@watch scripts/tests/anti-rollback-kvm-test.sh
+	@always
+	bash $(SCRIPTS)/tests/anti-rollback-kvm-test.sh $(ROOT) $(MMAKE_OUT)/image/ab-layout.img $(MMAKE_OUT)/components/system-image-sign
+
 system-data-smoke-test-kvm: ab-layout-test smoke-log-test
 	@watch scripts/tests/system-data-kvm-test.sh
 	@always
