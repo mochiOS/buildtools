@@ -83,10 +83,10 @@ ab-esp: bootloader kernel initfs
 	@output $(MMAKE_OUT)/image/ab-esp.img
 	bash $(SCRIPTS)/mmake/make-ab-esp-image.sh $(ROOT) $(MMAKE_OUT)
 
-ab-layout-image: ab-esp rootfs boot-selection-seed system-image-sign-tool config
+ab-layout-image: ab-esp rootfs boot-selection-seed system-image-sign-tool system-slot-image-tool config
 	@watch scripts/mmake/build-ab-layout-image.sh
 	@output $(MMAKE_OUT)/image/ab-layout.img
-	bash $(SCRIPTS)/mmake/build-ab-layout-image.sh $(ROOT) $(MMAKE_OUT) $(MMAKE_OUT)/components/boot-selection-seed $(MMAKE_OUT)/components/system-image-sign
+	bash $(SCRIPTS)/mmake/build-ab-layout-image.sh $(ROOT) $(MMAKE_OUT) $(MMAKE_OUT)/components/boot-selection-seed $(MMAKE_OUT)/components/system-image-sign $(MMAKE_OUT)/components/system-slot-image
 
 ab-slot-b-image: ab-layout-image boot-selection-seed
 	@watch scripts/mmake/build-ab-slot-b-image.sh
