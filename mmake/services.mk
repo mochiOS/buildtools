@@ -48,7 +48,7 @@ mboot-agent: runtime rust-sysroot
 network: runtime rust-sysroot
 	@watch services/network/**
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/network
-	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/network/Cargo.toml --bin network
+	$(MOCHIOS_CARGO) --config "patch.\"https://github.com/mochiOS/syscalls\".mochios-net-device-protocol.path='$(ROOT)/user/crates/net-device-protocol'" --manifest-path $(ROOT)/services/network/Cargo.toml --bin network
 
 package-service: runtime rust-sysroot
 	@watch services/package/**
@@ -81,7 +81,8 @@ update-service: runtime rust-sysroot
 	@watch services/update/**
 	@watch version.toml
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/update
-	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/update/Cargo.toml --bin update
+	features=; if grep -qx 'DEVELOPMENT_SYSTEM_SIGNATURES=y' $(ROOT)/.config; then features=--features=development-system-key; fi; \
+	$(MOCHIOS_CARGO) --config "patch.\"https://github.com/mochiOS/syscalls\".mochios-net-device-protocol.path='$(ROOT)/user/crates/net-device-protocol'" --manifest-path $(ROOT)/services/update/Cargo.toml --bin update $features
 
 user-service: runtime rust-sysroot
 	@watch services/user/**

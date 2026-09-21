@@ -50,7 +50,11 @@ developer-pki-production-e2e:
 
 diagnostics-test:
 	@always
-	cargo test --offline --manifest-path $(ROOT)/services/update/Cargo.toml --lib
+	cargo test --offline --config "patch.\"https://github.com/mochiOS/syscalls\".mochios-net-device-protocol.path='$(ROOT)/user/crates/net-device-protocol'" --manifest-path $(ROOT)/services/update/Cargo.toml --lib
+
+net-device-protocol-test:
+	@always
+	cargo test --offline $(CARGO_PATCHES) --manifest-path $(ROOT)/user/crates/net-device-protocol/Cargo.toml --lib
 
 http-client-test:
 	@always
