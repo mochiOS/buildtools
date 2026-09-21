@@ -80,6 +80,11 @@ system-signature-smoke-test-kvm: ab-layout-test smoke-log-test
 	@always
 	bash $(SCRIPTS)/tests/system-signature-kvm-test.sh $(ROOT) $(MMAKE_OUT)/image/ab-layout.img
 
+system-data-smoke-test-kvm: ab-layout-test smoke-log-test
+	@watch scripts/tests/system-data-kvm-test.sh
+	@always
+	bash $(SCRIPTS)/tests/system-data-kvm-test.sh $(ROOT) $(MMAKE_OUT)/image/ab-layout.img $(MMAKE_OUT)/components/system-image-sign
+
 ab-slot-b-test: ab-slot-b-image ab-layout-test
 	@watch scripts/tests/ab-slot-b-test.sh
 	@always
