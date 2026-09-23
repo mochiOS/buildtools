@@ -14,6 +14,10 @@ preview-appstore:
 	@always
 	$(SCRIPTS)/dev/preview-app.sh appstore run $(CARGO_PATCHES)
 
+preview-edit:
+	@always
+	$(SCRIPTS)/dev/preview-app.sh edit run $(CARGO_PATCHES)
+
 preview-check:
 	@always
 	$(SCRIPTS)/dev/preview-app.sh check all $(CARGO_PATCHES)
