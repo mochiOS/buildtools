@@ -89,6 +89,12 @@ user-service: runtime rust-sysroot
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/user-service
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/user/Cargo.toml --bin user-service
 
+workspace-service: runtime rust-sysroot
+	@watch services/workspace/**
+	@watch user/crates/workspace-protocol/**
+	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/workspace-service
+	$(MOCHIOS_CARGO) --config "patch.\"https://github.com/mochiOS/syscalls\".mochios-workspace-protocol.path='$(ROOT)/user/crates/workspace-protocol'" --manifest-path $(ROOT)/services/workspace/Cargo.toml --bin workspace-service
+
 services-bundle: services-inputs runtime rust-sysroot
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/capability
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/compositor
@@ -107,6 +113,7 @@ services-bundle: services-inputs runtime rust-sysroot
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/tty
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/update
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/user-service
-	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/Cargo.toml --workspace
+	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/workspace-service
+	$(MOCHIOS_CARGO) --config "patch.\"https://github.com/mochiOS/syscalls\".mochios-workspace-protocol.path='$(ROOT)/user/crates/workspace-protocol'" --manifest-path $(ROOT)/services/Cargo.toml --workspace
 
-services: capability compositor core-service display drivers-service input linux-service logger mboot-agent network package-service secure-ui service-manager signature tty update-service user-service
+services: capability compositor core-service display drivers-service input linux-service logger mboot-agent network package-service secure-ui service-manager signature tty update-service user-service workspace-service

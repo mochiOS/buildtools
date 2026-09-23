@@ -146,3 +146,11 @@ ab-trial-confirm-smoke-test-kvm: ab-trial-confirm-test smoke-log-test
 	@watch scripts/tests/ab-trial-confirm-kvm-test.sh
 	@always
 	bash $(SCRIPTS)/tests/ab-trial-confirm-kvm-test.sh $(ROOT) $(MMAKE_OUT)/image/ab-trial-b.img $(MMAKE_OUT)/components/boot-selection-confirm-test
+workspace-test:
+	@always
+	cargo test --offline $(CARGO_PATCHES) --manifest-path $(ROOT)/user/crates/workspace-protocol/Cargo.toml --lib
+	cargo test --offline $(CARGO_PATCHES) --manifest-path $(ROOT)/services/workspace/Cargo.toml --bin workspace-service
+
+service-manager-test:
+	@always
+	cargo test --offline $(CARGO_PATCHES) --manifest-path $(ROOT)/services/service-manager/Cargo.toml --lib
