@@ -111,9 +111,9 @@ binder-inputs: viewkit-inputs
 edit-inputs: viewkit-inputs
 	@watch applications/edit/Cargo.toml
 	@watch applications/edit/src/**
+	@watch applications/edit/appicon.png
 	@watch applications/edit/about.toml
 	@watch applications/edit/manifest.toml
-	@watch docs/resources/appicons/Edit.app.png
 
 files-inputs: viewkit-inputs
 	@watch applications/file/Cargo.toml
