@@ -108,6 +108,13 @@ binder-inputs: viewkit-inputs
 	@watch applications/binder/about.toml
 	@watch applications/binder/manifest.toml
 
+edit-inputs: viewkit-inputs
+	@watch applications/edit/Cargo.toml
+	@watch applications/edit/src/**
+	@watch applications/edit/about.toml
+	@watch applications/edit/manifest.toml
+	@watch docs/resources/appicons/Edit.app.png
+
 files-inputs: viewkit-inputs
 	@watch applications/file/Cargo.toml
 	@watch applications/file/src/**
@@ -147,7 +154,7 @@ appstore-inputs: viewkit-inputs
 	@watch applications/appstore/about.toml
 	@watch applications/appstore/manifest.toml
 
-applications-inputs: appstore-inputs binder-inputs files-inputs installer-inputs settings-inputs terminal-inputs
+applications-inputs: appstore-inputs binder-inputs edit-inputs files-inputs installer-inputs settings-inputs terminal-inputs
 	@watch applications/test.app/Cargo.toml
 	@watch applications/test.app/Cargo.lock
 	@watch applications/test.app/src/**

@@ -12,6 +12,10 @@ binder: binder-inputs viewkit
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/binder
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/binder/Cargo.toml --bin binder
 
+edit: edit-inputs viewkit
+	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/edit
+	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/edit/Cargo.toml --bin edit
+
 files: files-inputs viewkit
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/files
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/file/Cargo.toml --bin files
@@ -38,6 +42,7 @@ test-app: viewkit
 apps-bundle: applications-inputs viewkit
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/appstore
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/binder
+	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/edit
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/files
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/installer
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/settings
@@ -45,10 +50,11 @@ apps-bundle: applications-inputs viewkit
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/test_app
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/appstore/Cargo.toml --bin appstore
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/binder/Cargo.toml --bin binder
+	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/edit/Cargo.toml --bin edit
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/file/Cargo.toml --bin files
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/installer/Cargo.toml --bin installer
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/settings/Cargo.toml --bin settings
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/terminal/Cargo.toml --bin terminal
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/test.app/Cargo.toml --bin test_app
 
-apps: appstore binder files installer settings terminal test-app
+apps: appstore binder edit files installer settings terminal test-app
