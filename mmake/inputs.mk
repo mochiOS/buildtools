@@ -105,7 +105,6 @@ binder-inputs: viewkit-inputs
 	@watch applications/binder/src/**
 	@watch applications/binder/crates/**
 	@watch applications/binder/resources/**
-	@watch applications/binder/about.toml
 	@watch applications/binder/manifest.toml
 
 edit-inputs: viewkit-inputs
@@ -114,8 +113,6 @@ edit-inputs: viewkit-inputs
 	@watch tools/devkit/crates/appkit/Cargo.toml
 	@watch tools/devkit/crates/appkit/src/**
 	@watch applications/edit/appicon.png
-	@watch applications/edit/about.toml
-	@watch applications/edit/control-center.toml
 	@watch applications/edit/manifest.toml
 
 files-inputs: viewkit-inputs
@@ -125,7 +122,6 @@ files-inputs: viewkit-inputs
 	@watch tools/devkit/crates/appkit/src/**
 	@watch applications/file/resources/**
 	@watch applications/file/appicon.svg
-	@watch applications/file/about.toml
 	@watch applications/file/manifest.toml
 
 installer-inputs: viewkit-inputs
@@ -133,7 +129,6 @@ installer-inputs: viewkit-inputs
 	@watch applications/installer/Cargo.lock
 	@watch applications/installer/src/**
 	@watch applications/installer/appicon.svg
-	@watch applications/installer/about.toml
 	@watch applications/installer/manifest.toml
 
 settings-inputs: viewkit-inputs
@@ -142,7 +137,6 @@ settings-inputs: viewkit-inputs
 	@watch applications/settings/build.rs
 	@watch applications/settings/src/**
 	@watch applications/settings/appicon.png
-	@watch applications/settings/about.toml
 	@watch applications/settings/manifest.toml
 
 terminal-inputs: viewkit-inputs
@@ -150,20 +144,17 @@ terminal-inputs: viewkit-inputs
 	@watch applications/terminal/Cargo.lock
 	@watch applications/terminal/src/**
 	@watch applications/terminal/appicon.svg
-	@watch applications/terminal/about.toml
 	@watch applications/terminal/manifest.toml
 
 appstore-inputs: viewkit-inputs
 	@watch applications/appstore/Cargo.toml
 	@watch applications/appstore/src/**
-	@watch applications/appstore/about.toml
 	@watch applications/appstore/manifest.toml
 
 applications-inputs: appstore-inputs binder-inputs edit-inputs files-inputs installer-inputs settings-inputs terminal-inputs
 	@watch applications/test.app/Cargo.toml
 	@watch applications/test.app/Cargo.lock
 	@watch applications/test.app/src/**
-	@watch applications/test.app/about.toml
 	@watch applications/test.app/manifest.toml
 
 drivers-inputs: runtime-inputs
