@@ -147,12 +147,21 @@ terminal-inputs: viewkit-inputs
 	@watch applications/terminal/appicon.svg
 	@watch applications/terminal/manifest.toml
 
+system-monitor-inputs: viewkit-inputs
+	@watch applications/system-monitor/Cargo.toml
+	@watch applications/system-monitor/Cargo.lock
+	@watch applications/system-monitor/src/**
+	@watch tools/devkit/crates/appkit/Cargo.toml
+	@watch tools/devkit/crates/appkit/src/**
+	@watch applications/system-monitor/appicon.png
+	@watch applications/system-monitor/manifest.toml
+
 appstore-inputs: viewkit-inputs
 	@watch applications/appstore/Cargo.toml
 	@watch applications/appstore/src/**
 	@watch applications/appstore/manifest.toml
 
-applications-inputs: appstore-inputs binder-inputs edit-inputs files-inputs installer-inputs settings-inputs terminal-inputs
+applications-inputs: appstore-inputs binder-inputs edit-inputs files-inputs installer-inputs settings-inputs system-monitor-inputs terminal-inputs
 	@watch applications/test.app/Cargo.toml
 	@watch applications/test.app/Cargo.lock
 	@watch applications/test.app/src/**

@@ -45,6 +45,20 @@ settings: settings-inputs viewkit
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/settings
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/settings/Cargo.toml --bin settings
 
+system-monitor: system-monitor-inputs viewkit
+	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/system-monitor
+	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/system-monitor/Cargo.toml --bin system-monitor
+
+system-monitor-test: viewkit
+	@watch applications/system-monitor/Cargo.toml
+	@watch applications/system-monitor/Cargo.lock
+	@watch applications/system-monitor/src/**
+	@watch tools/devkit/Cargo.toml
+	@watch tools/devkit/Cargo.lock
+	@watch tools/devkit/crates/appkit/**
+	@always
+	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS=$(JOBS) cargo test --offline $(CARGO_PATCHES) --manifest-path $(ROOT)/applications/system-monitor/Cargo.toml --target-dir $(MMAKE_OUT)/targets/system-monitor
+
 terminal: terminal-inputs viewkit
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/terminal
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/terminal/Cargo.toml --bin terminal
@@ -63,6 +77,7 @@ apps-bundle: applications-inputs viewkit
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/files
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/installer
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/settings
+	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/system-monitor
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/terminal
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/test_app
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/appstore/Cargo.toml --bin appstore
@@ -71,7 +86,8 @@ apps-bundle: applications-inputs viewkit
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/file/Cargo.toml --bin files
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/installer/Cargo.toml --bin installer
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/settings/Cargo.toml --bin settings
+	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/system-monitor/Cargo.toml --bin system-monitor
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/terminal/Cargo.toml --bin terminal
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/test.app/Cargo.toml --bin test_app
 
-apps: appstore binder edit files installer settings terminal test-app
+apps: appstore binder edit files installer settings system-monitor terminal test-app
