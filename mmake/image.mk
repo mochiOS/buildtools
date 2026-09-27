@@ -1,4 +1,4 @@
-rootfs-stage: programs drivers fonts filesystem-inputs msign-tool
+rootfs-stage: programs drivers fonts ime-dictionary filesystem-inputs msign-tool
 	@watch scripts/mmake/stage-rootfs.sh
 	@watch scripts/mmake/development-users.db
 	@output $(MMAKE_OUT)/image/rootfs/.ready

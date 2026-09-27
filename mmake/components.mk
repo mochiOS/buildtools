@@ -3,6 +3,12 @@ fonts: fonts-inputs
 	@output $(ROOT)/libraries/fonts/out/fonts/.installed
 	$(SCRIPTS)/mmake/build-fonts.sh $(ROOT)
 
+ime-dictionary:
+	@watch build/ime/ja.mime.sha256
+	@output $(MMAKE_OUT)/components/ime/ja.mime
+	mkdir -p $(MMAKE_OUT)/components/ime
+	expected=`cut -d' ' -f1 $(ROOT)/build/ime/ja.mime.sha256`; output=$(MMAKE_OUT)/components/ime/ja.mime; if test -f "$output" && printf '%s  %s\n' "$expected" "$output" | sha256sum -c - >/dev/null 2>&1; then exit 0; fi; temporary="$output.new"; rm -f "$temporary"; curl --fail --location --retry 3 --output "$temporary" https://storage.mochios.org/mochios/ime/ja.mime; printf '%s  %s\n' "$expected" "$temporary" | sha256sum -c -; test `stat -c %s "$temporary"` -eq 163123094; chmod 0644 "$temporary"; mv "$temporary" "$output"
+
 runtime: runtime-inputs
 	@output $(OUT)/newlib-port/sdk/lib/crt0.o
 	@output $(OUT)/newlib-port/sdk/lib/libmochi_user_newlib_runtime.a

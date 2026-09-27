@@ -56,6 +56,10 @@ net-device-protocol-test:
 	@always
 	cargo test --offline $(CARGO_PATCHES) --manifest-path $(ROOT)/user/crates/net-device-protocol/Cargo.toml --lib
 
+input-test:
+	@always
+	cargo test --offline $(CARGO_PATCHES) --manifest-path $(ROOT)/services/Cargo.toml --target-dir $(MMAKE_OUT)/targets/input-test -p input --lib
+
 http-client-test:
 	@always
 	cargo test --offline $(CARGO_PATCHES) --manifest-path $(ROOT)/user/crates/http-client/Cargo.toml --lib
