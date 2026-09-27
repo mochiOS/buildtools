@@ -55,6 +55,7 @@ newlib-source-state:
 runtime-inputs: config rust-source-state newlib-source-state
 	@watch .config
 	@watch build/rust-std-toolchain
+	@watch core/crates/abi/**
 	@watch out/mmake/fingerprints/rust.sha256
 	@watch out/mmake/fingerprints/newlib.sha256
 	@watch user/Cargo.toml
