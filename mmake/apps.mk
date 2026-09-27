@@ -12,6 +12,13 @@ binder: binder-inputs viewkit
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/binder
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/binder/Cargo.toml --bin binder
 
+binder-test: viewkit
+	@watch applications/binder/Cargo.toml
+	@watch applications/binder/Cargo.lock
+	@watch applications/binder/src/**
+	@always
+	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS=$(JOBS) cargo test --offline $(CARGO_PATCHES) --manifest-path $(ROOT)/applications/binder/Cargo.toml --target-dir $(MMAKE_OUT)/targets/binder
+
 edit: edit-inputs viewkit
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/edit
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/edit/Cargo.toml --bin edit

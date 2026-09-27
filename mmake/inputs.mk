@@ -115,6 +115,7 @@ edit-inputs: viewkit-inputs
 	@watch tools/devkit/crates/appkit/src/**
 	@watch applications/edit/appicon.png
 	@watch applications/edit/about.toml
+	@watch applications/edit/control-center.toml
 	@watch applications/edit/manifest.toml
 
 files-inputs: viewkit-inputs
