@@ -156,12 +156,21 @@ system-monitor-inputs: viewkit-inputs
 	@watch applications/system-monitor/appicon.png
 	@watch applications/system-monitor/manifest.toml
 
+terra-inputs: viewkit-inputs
+	@watch applications/terra/Cargo.toml
+	@watch applications/terra/Cargo.lock
+	@watch applications/terra/src/**
+	@watch tools/devkit/crates/appcore/Cargo.toml
+	@watch tools/devkit/crates/appcore/src/**
+	@watch applications/terra/appicon.png
+	@watch applications/terra/manifest.toml
+
 appstore-inputs: viewkit-inputs
 	@watch applications/appstore/Cargo.toml
 	@watch applications/appstore/src/**
 	@watch applications/appstore/manifest.toml
 
-applications-inputs: appstore-inputs binder-inputs edit-inputs files-inputs installer-inputs settings-inputs system-monitor-inputs terminal-inputs
+applications-inputs: appstore-inputs binder-inputs edit-inputs files-inputs installer-inputs settings-inputs system-monitor-inputs terra-inputs terminal-inputs
 	@watch applications/test.app/Cargo.toml
 	@watch applications/test.app/Cargo.lock
 	@watch applications/test.app/src/**
