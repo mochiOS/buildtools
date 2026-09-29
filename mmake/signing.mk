@@ -43,17 +43,17 @@ mpack-tool:
 	@output $(MPACK)
 	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS=$(JOBS) cargo build --offline $(SIGNING_CARGO_PATCHES) --release --manifest-path $(ROOT)/tools/devkit/Cargo.toml --package mpack --target-dir $(HOST_TOOLS_DIR)
 
-appkit: viewkit
+appcore: viewkit
 	@watch tools/devkit/Cargo.toml
 	@watch tools/devkit/Cargo.lock
-	@watch tools/devkit/crates/appkit/**
-	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/libappkit.rlib
-	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/tools/devkit/Cargo.toml --package mochios-appkit --lib
+	@watch tools/devkit/crates/appcore/**
+	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/libappcore.rlib
+	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/tools/devkit/Cargo.toml --package mochios-appcore --lib
 
-appkit-test: appkit
+appcore-test: appcore
 	@watch tools/devkit/Cargo.toml
 	@watch tools/devkit/Cargo.lock
-	@watch tools/devkit/crates/appkit/**
+	@watch tools/devkit/crates/appcore/**
 	@watch libraries/viewkit/Cargo.toml
 	@watch libraries/viewkit/build.rs
 	@watch libraries/viewkit/src/**
@@ -62,14 +62,14 @@ appkit-test: appkit
 	@watch user/crates/platform/Cargo.toml
 	@watch user/crates/platform/src/**
 	@always
-	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS=$(JOBS) cargo test --offline $(CARGO_PATCHES) --manifest-path $(ROOT)/tools/devkit/Cargo.toml --package mochios-appkit --target-dir $(MMAKE_OUT)/targets/appkit
-	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS=$(JOBS) cargo check --offline $(CARGO_PATCHES) --manifest-path $(ROOT)/tools/devkit/Cargo.toml --package mochios-appkit --no-default-features --target-dir $(MMAKE_OUT)/targets/appkit-no-ui
-	cc -std=c11 -Wall -Wextra -Werror -fsyntax-only -I$(ROOT)/tools/devkit/crates/appkit/include -I$(ROOT)/libraries/viewkit/lib/include $(ROOT)/tools/devkit/crates/appkit/tests/header.c
+	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS=$(JOBS) cargo test --offline $(CARGO_PATCHES) --manifest-path $(ROOT)/tools/devkit/Cargo.toml --package mochios-appcore --target-dir $(MMAKE_OUT)/targets/appcore
+	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS=$(JOBS) cargo check --offline $(CARGO_PATCHES) --manifest-path $(ROOT)/tools/devkit/Cargo.toml --package mochios-appcore --no-default-features --target-dir $(MMAKE_OUT)/targets/appcore-no-ui
+	cc -std=c11 -Wall -Wextra -Werror -fsyntax-only -I$(ROOT)/tools/devkit/crates/appcore/include -I$(ROOT)/libraries/viewkit/lib/include $(ROOT)/tools/devkit/crates/appcore/tests/header.c
 
-appkit-format:
-	@watch tools/devkit/crates/appkit/src/**
+appcore-format:
+	@watch tools/devkit/crates/appcore/src/**
 	@always
-	cargo fmt --manifest-path $(ROOT)/tools/devkit/Cargo.toml --package mochios-appkit
+	cargo fmt --manifest-path $(ROOT)/tools/devkit/Cargo.toml --package mochios-appcore
 
 # PACKAGE is deliberately the only build-time input.  Key and certificate paths
 # are selected by msign from the per-user identity store and never belong in the

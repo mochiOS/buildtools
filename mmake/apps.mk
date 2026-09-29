@@ -29,7 +29,7 @@ edit-test: viewkit
 	@watch applications/edit/src/**
 	@watch tools/devkit/Cargo.toml
 	@watch tools/devkit/Cargo.lock
-	@watch tools/devkit/crates/appkit/**
+	@watch tools/devkit/crates/appcore/**
 	@always
 	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS=$(JOBS) cargo test --offline $(CARGO_PATCHES) --manifest-path $(ROOT)/applications/edit/Cargo.toml --target-dir $(MMAKE_OUT)/targets/edit
 
@@ -55,7 +55,7 @@ system-monitor-test: viewkit
 	@watch applications/system-monitor/src/**
 	@watch tools/devkit/Cargo.toml
 	@watch tools/devkit/Cargo.lock
-	@watch tools/devkit/crates/appkit/**
+	@watch tools/devkit/crates/appcore/**
 	@always
 	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS=$(JOBS) cargo test --offline $(CARGO_PATCHES) --manifest-path $(ROOT)/applications/system-monitor/Cargo.toml --target-dir $(MMAKE_OUT)/targets/system-monitor
 

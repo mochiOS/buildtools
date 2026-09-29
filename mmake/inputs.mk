@@ -111,16 +111,16 @@ binder-inputs: viewkit-inputs
 edit-inputs: viewkit-inputs
 	@watch applications/edit/Cargo.toml
 	@watch applications/edit/src/**
-	@watch tools/devkit/crates/appkit/Cargo.toml
-	@watch tools/devkit/crates/appkit/src/**
+	@watch tools/devkit/crates/appcore/Cargo.toml
+	@watch tools/devkit/crates/appcore/src/**
 	@watch applications/edit/appicon.png
 	@watch applications/edit/manifest.toml
 
 files-inputs: viewkit-inputs
 	@watch applications/file/Cargo.toml
 	@watch applications/file/src/**
-	@watch tools/devkit/crates/appkit/Cargo.toml
-	@watch tools/devkit/crates/appkit/src/**
+	@watch tools/devkit/crates/appcore/Cargo.toml
+	@watch tools/devkit/crates/appcore/src/**
 	@watch applications/file/resources/**
 	@watch applications/file/appicon.svg
 	@watch applications/file/manifest.toml
@@ -151,8 +151,8 @@ system-monitor-inputs: viewkit-inputs
 	@watch applications/system-monitor/Cargo.toml
 	@watch applications/system-monitor/Cargo.lock
 	@watch applications/system-monitor/src/**
-	@watch tools/devkit/crates/appkit/Cargo.toml
-	@watch tools/devkit/crates/appkit/src/**
+	@watch tools/devkit/crates/appcore/Cargo.toml
+	@watch tools/devkit/crates/appcore/src/**
 	@watch applications/system-monitor/appicon.png
 	@watch applications/system-monitor/manifest.toml
 
