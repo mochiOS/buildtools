@@ -85,6 +85,7 @@ services-inputs: runtime-inputs
 	@watch services/core/**
 	@watch services/display/**
 	@watch services/drivers/**
+	@watch services/filesystem/**
 	@watch services/input/**
 	@watch services/linux/**
 	@watch services/logger/**

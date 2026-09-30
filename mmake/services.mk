@@ -23,6 +23,12 @@ drivers-service: runtime rust-sysroot
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/drivers
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/drivers/Cargo.toml --bin drivers
 
+filesystem-service: runtime rust-sysroot
+	@watch services/filesystem/**
+	@watch user/crates/filesystem-protocol/**
+	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/filesystem-service
+	$(MOCHIOS_CARGO) --config "patch.\"https://github.com/mochiOS/syscalls\".mochios-filesystem-protocol.path='$(ROOT)/user/crates/filesystem-protocol'" --manifest-path $(ROOT)/services/filesystem/Cargo.toml --bin filesystem-service
+
 input: runtime rust-sysroot
 	@watch services/input/**
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/input
@@ -101,6 +107,7 @@ services-bundle: services-inputs runtime rust-sysroot
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/core
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/display
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/drivers
+	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/filesystem-service
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/input
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/linux
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/logger
@@ -114,6 +121,6 @@ services-bundle: services-inputs runtime rust-sysroot
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/update
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/user-service
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/workspace-service
-	$(MOCHIOS_CARGO) --config "patch.\"https://github.com/mochiOS/syscalls\".mochios-workspace-protocol.path='$(ROOT)/user/crates/workspace-protocol'" --manifest-path $(ROOT)/services/Cargo.toml --workspace
+	$(MOCHIOS_CARGO) --config "patch.\"https://github.com/mochiOS/syscalls\".mochios-filesystem-protocol.path='$(ROOT)/user/crates/filesystem-protocol'" --config "patch.\"https://github.com/mochiOS/syscalls\".mochios-workspace-protocol.path='$(ROOT)/user/crates/workspace-protocol'" --manifest-path $(ROOT)/services/Cargo.toml --workspace
 
-services: capability compositor core-service display drivers-service input linux-service logger mboot-agent network package-service secure-ui service-manager signature tty update-service user-service workspace-service
+services: capability compositor core-service display drivers-service filesystem-service input linux-service logger mboot-agent network package-service secure-ui service-manager signature tty update-service user-service workspace-service
