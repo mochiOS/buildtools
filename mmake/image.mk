@@ -16,6 +16,12 @@ rootfs: rootfs-stage config
 	@output $(MMAKE_OUT)/image/rootfs.img
 	$(SCRIPTS)/mmake/make-ext2-image.sh $(MMAKE_OUT)/image/rootfs $(MMAKE_OUT)/image/rootfs.img rootfs $(ROOT)/.config
 
+data: rootfs-stage config
+	@watch scripts/mmake/make-data-image.sh
+	@watch scripts/mmake/sync-ext2.py
+	@output $(MMAKE_OUT)/image/data.img
+	$(SCRIPTS)/mmake/make-data-image.sh $(ROOT) $(MMAKE_OUT)
+
 initfs: initfs-stage config
 	@watch scripts/mmake/make-ext2-image.sh
 	@watch scripts/mmake/sync-ext2.py
@@ -27,7 +33,7 @@ esp: bootloader kernel initfs config
 	@output $(MMAKE_OUT)/image/esp.img
 	$(SCRIPTS)/mmake/make-esp-image.sh $(ROOT) $(MMAKE_OUT)
 
-disk-image: esp rootfs config
+disk-image: esp rootfs data config
 	@watch scripts/mmake/make-disk-image.sh
 	@watch scripts/mmake/patch-disk-partition.py
 	@output $(MMAKE_OUT)/image/disk.img
