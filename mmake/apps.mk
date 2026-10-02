@@ -73,6 +73,20 @@ terra-test: viewkit
 	@always
 	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS=$(JOBS) cargo test --offline $(CARGO_PATCHES) --manifest-path $(ROOT)/applications/terra/Cargo.toml --target-dir $(MMAKE_OUT)/targets/terra
 
+viewer: viewer-inputs viewkit
+	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/viewer
+	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/viewer/Cargo.toml --bin viewer
+
+viewer-test: viewkit
+	@watch applications/viewer/Cargo.toml
+	@watch applications/viewer/Cargo.lock
+	@watch applications/viewer/src/**
+	@watch tools/devkit/Cargo.toml
+	@watch tools/devkit/Cargo.lock
+	@watch tools/devkit/crates/appcore/**
+	@always
+	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS=$(JOBS) cargo test --offline $(CARGO_PATCHES) --manifest-path $(ROOT)/applications/viewer/Cargo.toml --target-dir $(MMAKE_OUT)/targets/viewer
+
 terminal: terminal-inputs viewkit
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/terminal
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/terminal/Cargo.toml --bin terminal
@@ -93,6 +107,7 @@ apps-bundle: applications-inputs viewkit
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/settings
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/system-monitor
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/terra
+	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/viewer
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/terminal
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/test_app
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/appstore/Cargo.toml --bin appstore
@@ -103,7 +118,8 @@ apps-bundle: applications-inputs viewkit
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/settings/Cargo.toml --bin settings
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/system-monitor/Cargo.toml --bin system-monitor
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/terra/Cargo.toml --bin terra
+	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/viewer/Cargo.toml --bin viewer
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/terminal/Cargo.toml --bin terminal
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/test.app/Cargo.toml --bin test_app
 
-apps: appstore binder edit files installer settings system-monitor terra terminal test-app
+apps: appstore binder edit files installer settings system-monitor terra viewer terminal test-app
