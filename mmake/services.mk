@@ -29,6 +29,13 @@ filesystem-service: runtime rust-sysroot
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/filesystem-service
 	$(MOCHIOS_CARGO) --config "patch.\"https://github.com/mochiOS/syscalls\".mochios-filesystem-protocol.path='$(ROOT)/user/crates/filesystem-protocol'" --manifest-path $(ROOT)/services/filesystem/Cargo.toml --bin filesystem-service
 
+posix-service: runtime rust-sysroot
+	@watch services/posix/**
+	@watch user/crates/posix-protocol/**
+	@watch user/crates/posix-client/**
+	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/posix-service
+	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/posix/Cargo.toml --bin posix-service
+
 input: runtime rust-sysroot
 	@watch services/input/**
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/input
@@ -114,6 +121,7 @@ services-bundle: services-inputs runtime rust-sysroot
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/mboot-agent
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/network
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/package
+	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/posix-service
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/secure-ui
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/service-manager
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/signature
@@ -123,4 +131,4 @@ services-bundle: services-inputs runtime rust-sysroot
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/workspace-service
 	$(MOCHIOS_CARGO) --config "patch.\"https://github.com/mochiOS/syscalls\".mochios-filesystem-protocol.path='$(ROOT)/user/crates/filesystem-protocol'" --config "patch.\"https://github.com/mochiOS/syscalls\".mochios-workspace-protocol.path='$(ROOT)/user/crates/workspace-protocol'" --manifest-path $(ROOT)/services/Cargo.toml --workspace
 
-services: capability compositor core-service display drivers-service filesystem-service input linux-service logger mboot-agent network package-service secure-ui service-manager signature tty update-service user-service workspace-service
+services: capability compositor core-service display drivers-service filesystem-service input linux-service logger mboot-agent network package-service posix-service secure-ui service-manager signature tty update-service user-service workspace-service

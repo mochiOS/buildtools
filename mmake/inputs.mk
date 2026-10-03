@@ -96,6 +96,7 @@ services-inputs: runtime-inputs
 	@watch services/mboot-protocol/**
 	@watch services/network/**
 	@watch services/package/**
+	@watch services/posix/**
 	@watch services/permission-prompt-protocol/**
 	@watch services/secure-ui/**
 	@watch services/service-manager/**
