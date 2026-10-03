@@ -17,6 +17,9 @@ boot-inputs: config
 	@watch boot/src/**
 	@watch boot/crates/**
 	@watch boot/domain.ld
+	@watch libraries/bootui/Cargo.toml
+	@watch libraries/bootui/src/**
+	@watch resources/system/icons/mochimochi-kun.png
 	@watch core/crates/abi/**
 
 fonts-inputs:
