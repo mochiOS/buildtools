@@ -10,6 +10,8 @@ compositor: runtime rust-sysroot
 
 core-service: runtime rust-sysroot
 	@watch services/core/**
+	@watch services/filesystem/**
+	@watch services/third_party/ext4plus/**
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/core
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/core/Cargo.toml --bin core
 
