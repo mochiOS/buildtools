@@ -66,6 +66,7 @@ runtime-inputs: config rust-source-state newlib-source-state
 	@watch user/crates/**
 	@watch user/libc-port/include/**
 	@watch user/libc-port/tests/**
+	@watch user/runtime/**
 	@watch user/targets/**
 	@watch user/scripts/**
 	@watch libraries/libc/Cargo.toml
