@@ -8,16 +8,10 @@ drivers: drivers-inputs runtime
 
 cexts: cext-inputs
 	@output $(MMAKE_OUT)/cexts/disk.cext/entry
-	@output $(MMAKE_OUT)/cexts/ext2.cext/entry
 	rm -rf $(MMAKE_OUT)/cexts
-	mkdir -p $(MMAKE_OUT)/cexts/disk.cext $(MMAKE_OUT)/cexts/ext2.cext
+	mkdir -p $(MMAKE_OUT)/cexts/disk.cext
 	toolchain=`sed -n 's/^KERNEL_RUST_TOOLCHAIN=//p' $(ROOT)/.config | tr -d '"' | tail -n1`; cargo "+$toolchain" rustc --offline -Z build-std=core,compiler_builtins --release --target x86_64-unknown-none --target-dir $(OUT)/cexts/target --config "patch.\"https://github.com/mochiOS/cexts\".mochi-cext-abi.path='$(ROOT)/cexts/crates/cext-abi'" --manifest-path $(ROOT)/cexts/Cargo.toml -p mochi-disk-cext -- --emit=obj -C relocation-model=pic -C panic=abort
 	object=`find $(OUT)/cexts/target/x86_64-unknown-none/release/deps -maxdepth 1 -type f -name 'mochi_disk_cext-*.o' -printf '%T@ %p\n' | sort -n | tail -n1 | cut -d' ' -f2-`; test -n "$object"; ld -shared -nostdlib -z noexecstack -Bsymbolic -o $(MMAKE_OUT)/cexts/disk.cext/disk.elf "$object"
 	if readelf -rW $(MMAKE_OUT)/cexts/disk.cext/disk.elf | awk '/R_X86_64_/ && $0 !~ /R_X86_64_RELATIVE/ { found=1 } END { exit found ? 0 : 1 }'; then echo 'fatal: unsupported relocation remained in disk.elf' >&2; exit 1; fi
 	perl $(SCRIPTS)/pack-cext.pl --manifest $(ROOT)/cexts/disk.cext/manifest.toml --elf $(MMAKE_OUT)/cexts/disk.cext/disk.elf --out $(MMAKE_OUT)/cexts/disk.cext/entry
 	install -m 0644 $(ROOT)/cexts/disk.cext/manifest.toml $(MMAKE_OUT)/cexts/disk.cext/manifest.toml
-	toolchain=`sed -n 's/^KERNEL_RUST_TOOLCHAIN=//p' $(ROOT)/.config | tr -d '"' | tail -n1`; cargo "+$toolchain" rustc --offline -Z build-std=core,compiler_builtins --release --target x86_64-unknown-none --target-dir $(OUT)/cexts/target --config "patch.\"https://github.com/mochiOS/cexts\".mochi-cext-abi.path='$(ROOT)/cexts/crates/cext-abi'" --manifest-path $(ROOT)/cexts/Cargo.toml -p mochi-ext2-cext -- --emit=obj -C relocation-model=pic -C panic=abort
-	object=`find $(OUT)/cexts/target/x86_64-unknown-none/release/deps -maxdepth 1 -type f -name 'mochi_ext2_cext-*.o' -printf '%T@ %p\n' | sort -n | tail -n1 | cut -d' ' -f2-`; test -n "$object"; ld -shared -nostdlib -z noexecstack -Bsymbolic -o $(MMAKE_OUT)/cexts/ext2.cext/ext2.elf "$object"
-	if readelf -rW $(MMAKE_OUT)/cexts/ext2.cext/ext2.elf | awk '/R_X86_64_/ && $0 !~ /R_X86_64_RELATIVE/ { found=1 } END { exit found ? 0 : 1 }'; then echo 'fatal: unsupported relocation remained in ext2.elf' >&2; exit 1; fi
-	perl $(SCRIPTS)/pack-cext.pl --manifest $(ROOT)/cexts/ext2.cext/manifest.toml --elf $(MMAKE_OUT)/cexts/ext2.cext/ext2.elf --out $(MMAKE_OUT)/cexts/ext2.cext/entry --dep disk
-	install -m 0644 $(ROOT)/cexts/ext2.cext/manifest.toml $(MMAKE_OUT)/cexts/ext2.cext/manifest.toml

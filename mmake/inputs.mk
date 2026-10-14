@@ -210,9 +210,8 @@ cext-inputs: runtime-inputs
 	@watch cexts/Cargo.toml
 	@watch cexts/Cargo.lock
 	@watch cexts/crates/**
-	@watch cexts/modules/**
+	@watch cexts/modules/disk/**
 	@watch cexts/disk.cext/**
-	@watch cexts/ext2.cext/**
 	@watch scripts/pack-cext.pl
 
 filesystem-inputs: applications-inputs services-inputs drivers-inputs cext-inputs fonts-inputs
