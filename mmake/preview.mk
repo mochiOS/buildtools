@@ -25,3 +25,12 @@ preview-check:
 ui-test:
 	@always
 	$(SCRIPTS)/dev/preview-app.sh test all $(CARGO_PATCHES)
+
+# Linux desktop and actual host applications, without building the OS image.
+ui:
+	@always
+	$(SCRIPTS)/dev/desktop-ui.sh run $(CARGO_PATCHES)
+
+ui-check:
+	@always
+	$(SCRIPTS)/dev/desktop-ui.sh --check $(CARGO_PATCHES)
