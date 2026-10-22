@@ -25,6 +25,7 @@ data: rootfs-stage config
 initfs: initfs-stage config
 	@watch scripts/mmake/make-ext2-image.sh
 	@watch scripts/mmake/pack-boot-module.pl
+	@watch scripts/mmake/pack-boot-extensions.py
 	@watch scripts/mmake/sync-ext2.py
 	@output $(MMAKE_OUT)/image/initfs.img
 	$(SCRIPTS)/mmake/make-ext2-image.sh $(MMAKE_OUT)/image/initfs $(MMAKE_OUT)/image/initfs.img initfs $(ROOT)/.config
