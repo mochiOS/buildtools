@@ -27,7 +27,7 @@ ui-test:
 	$(SCRIPTS)/dev/preview-app.sh test all $(CARGO_PATCHES)
 
 # Linux desktop and actual host applications, without building the OS image.
-ui:
+ui: ime-dictionary
 	@always
 	$(SCRIPTS)/dev/desktop-ui.sh run $(CARGO_PATCHES)
 
