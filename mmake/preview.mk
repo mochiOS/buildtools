@@ -38,3 +38,7 @@ ui-check:
 preview-calendar:
 	@always
 	$(SCRIPTS)/dev/preview-app.sh calendar run $(CARGO_PATCHES)
+
+preview-calculator:
+	@always
+	$(SCRIPTS)/dev/preview-app.sh calculator run $(CARGO_PATCHES)
