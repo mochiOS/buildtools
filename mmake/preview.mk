@@ -34,3 +34,7 @@ ui: ime-dictionary
 ui-check:
 	@always
 	$(SCRIPTS)/dev/desktop-ui.sh --check $(CARGO_PATCHES)
+
+preview-calendar:
+	@always
+	$(SCRIPTS)/dev/preview-app.sh calendar run $(CARGO_PATCHES)

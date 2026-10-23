@@ -8,6 +8,10 @@ appstore: appstore-inputs viewkit
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/appstore
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/appstore/Cargo.toml --bin appstore
 
+calendar: calendar-inputs viewkit
+	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/calendar
+	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/calendar/Cargo.toml --bin calendar
+
 binder: binder-inputs viewkit
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/binder
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/binder/Cargo.toml --bin binder
@@ -99,6 +103,7 @@ test-app: viewkit
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/test.app/Cargo.toml --bin test_app
 
 apps-bundle: applications-inputs viewkit
+	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/calendar
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/appstore
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/binder
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/edit
@@ -111,6 +116,7 @@ apps-bundle: applications-inputs viewkit
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/terminal
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/test_app
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/appstore/Cargo.toml --bin appstore
+	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/calendar/Cargo.toml --bin calendar
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/binder/Cargo.toml --bin binder
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/edit/Cargo.toml --bin edit
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/file/Cargo.toml --bin files
@@ -122,4 +128,4 @@ apps-bundle: applications-inputs viewkit
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/terminal/Cargo.toml --bin terminal
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/test.app/Cargo.toml --bin test_app
 
-apps: appstore binder edit files installer settings system-monitor terra viewer terminal test-app
+apps: appstore calendar binder edit files installer settings system-monitor terra viewer terminal test-app
