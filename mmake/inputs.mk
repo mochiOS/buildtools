@@ -217,6 +217,7 @@ keychain-inputs: viewkit-inputs
 	@watch applications/keychain/Cargo.toml
 	@watch applications/keychain/Cargo.lock
 	@watch applications/keychain/src/**
+	@watch applications/keychain/appicon.png
 	@watch applications/keychain/manifest.toml
 	@watch tools/devkit/crates/appcore/src/**
 	@watch user/crates/keychain-protocol/**
