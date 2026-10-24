@@ -203,7 +203,15 @@ calculator-inputs: viewkit-inputs
 	@watch applications/calculator/manifest.toml
 	@watch tools/devkit/crates/appcore/src/**
 
-applications-inputs: calculator-inputs calendar-inputs appstore-inputs binder-inputs edit-inputs files-inputs installer-inputs settings-inputs system-monitor-inputs terra-inputs viewer-inputs terminal-inputs
+mail-inputs: viewkit-inputs
+	@watch applications/mail/Cargo.toml
+	@watch applications/mail/Cargo.lock
+	@watch applications/mail/src/**
+	@watch applications/mail/appicon.png
+	@watch applications/mail/manifest.toml
+	@watch tools/devkit/crates/appcore/src/**
+
+applications-inputs: mail-inputs calculator-inputs calendar-inputs appstore-inputs binder-inputs edit-inputs files-inputs installer-inputs settings-inputs system-monitor-inputs terra-inputs viewer-inputs terminal-inputs
 	@watch applications/test.app/Cargo.toml
 	@watch applications/test.app/Cargo.lock
 	@watch applications/test.app/src/**

@@ -8,6 +8,10 @@ appstore: appstore-inputs viewkit
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/appstore
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/appstore/Cargo.toml --bin appstore
 
+mail: mail-inputs viewkit
+	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/mail
+	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/mail/Cargo.toml --bin mail
+
 calculator: calculator-inputs viewkit
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/calculator
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/calculator/Cargo.toml --bin calculator
@@ -107,6 +111,7 @@ test-app: viewkit
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/test.app/Cargo.toml --bin test_app
 
 apps-bundle: applications-inputs viewkit
+	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/mail
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/calculator
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/calendar
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/appstore
@@ -120,6 +125,7 @@ apps-bundle: applications-inputs viewkit
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/viewer
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/terminal
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/test_app
+	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/mail/Cargo.toml --bin mail
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/appstore/Cargo.toml --bin appstore
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/calculator/Cargo.toml --bin calculator
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/calendar/Cargo.toml --bin calendar
@@ -134,4 +140,4 @@ apps-bundle: applications-inputs viewkit
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/terminal/Cargo.toml --bin terminal
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/test.app/Cargo.toml --bin test_app
 
-apps: appstore calculator calendar binder edit files installer settings system-monitor terra viewer terminal test-app
+apps: appstore mail calculator calendar binder edit files installer settings system-monitor terra viewer terminal test-app

@@ -42,3 +42,7 @@ preview-calendar:
 preview-calculator:
 	@always
 	$(SCRIPTS)/dev/preview-app.sh calculator run $(CARGO_PATCHES)
+
+preview-mail:
+	@always
+	$(SCRIPTS)/dev/preview-app.sh mail run $(CARGO_PATCHES)
