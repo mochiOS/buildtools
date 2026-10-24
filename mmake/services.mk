@@ -101,6 +101,7 @@ update-service: runtime rust-sysroot
 
 user-service: runtime rust-sysroot
 	@watch services/user/**
+	@watch user/crates/keychain-protocol/**
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/user-service
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/user/Cargo.toml --bin user-service
 
