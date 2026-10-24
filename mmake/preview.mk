@@ -46,3 +46,7 @@ preview-calculator:
 preview-mail:
 	@always
 	$(SCRIPTS)/dev/preview-app.sh mail run $(CARGO_PATCHES)
+
+preview-keychain:
+	@always
+	$(SCRIPTS)/dev/preview-app.sh keychain run $(CARGO_PATCHES)

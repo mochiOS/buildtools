@@ -93,6 +93,8 @@ services-inputs: runtime-inputs
 	@watch services/drivers/**
 	@watch services/filesystem/**
 	@watch services/input/**
+	@watch services/keychain/**
+	@watch user/crates/keychain-protocol/**
 	@watch services/linux/**
 	@watch services/logger/**
 	@watch services/mboot-agent/**
@@ -211,7 +213,15 @@ mail-inputs: viewkit-inputs
 	@watch applications/mail/manifest.toml
 	@watch tools/devkit/crates/appcore/src/**
 
-applications-inputs: mail-inputs calculator-inputs calendar-inputs appstore-inputs binder-inputs edit-inputs files-inputs installer-inputs settings-inputs system-monitor-inputs terra-inputs viewer-inputs terminal-inputs
+keychain-inputs: viewkit-inputs
+	@watch applications/keychain/Cargo.toml
+	@watch applications/keychain/Cargo.lock
+	@watch applications/keychain/src/**
+	@watch applications/keychain/manifest.toml
+	@watch tools/devkit/crates/appcore/src/**
+	@watch user/crates/keychain-protocol/**
+
+applications-inputs: keychain-inputs mail-inputs calculator-inputs calendar-inputs appstore-inputs binder-inputs edit-inputs files-inputs installer-inputs settings-inputs system-monitor-inputs terra-inputs viewer-inputs terminal-inputs
 	@watch applications/test.app/Cargo.toml
 	@watch applications/test.app/Cargo.lock
 	@watch applications/test.app/src/**

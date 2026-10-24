@@ -111,6 +111,7 @@ workspace-service: runtime rust-sysroot
 	$(MOCHIOS_CARGO) --config "patch.\"https://github.com/mochiOS/syscalls\".mochios-workspace-protocol.path='$(ROOT)/user/crates/workspace-protocol'" --manifest-path $(ROOT)/services/workspace/Cargo.toml --bin workspace-service
 
 services-bundle: services-inputs runtime rust-sysroot
+	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/keychain-service
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/capability
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/compositor
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/core
@@ -133,4 +134,10 @@ services-bundle: services-inputs runtime rust-sysroot
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/workspace-service
 	$(MOCHIOS_CARGO) --config "patch.\"https://github.com/mochiOS/syscalls\".mochios-filesystem-protocol.path='$(ROOT)/user/crates/filesystem-protocol'" --config "patch.\"https://github.com/mochiOS/syscalls\".mochios-workspace-protocol.path='$(ROOT)/user/crates/workspace-protocol'" --manifest-path $(ROOT)/services/Cargo.toml --workspace
 
-services: capability compositor core-service display drivers-service filesystem-service input linux-service logger mboot-agent network package-service posix-service secure-ui service-manager signature tty update-service user-service workspace-service
+services: keychain-service capability compositor core-service display drivers-service filesystem-service input linux-service logger mboot-agent network package-service posix-service secure-ui service-manager signature tty update-service user-service workspace-service
+
+keychain-service: runtime rust-sysroot
+	@watch services/keychain/**
+	@watch user/crates/keychain-protocol/**
+	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/keychain-service
+	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/keychain/Cargo.toml --bin keychain-service
