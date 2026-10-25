@@ -189,6 +189,13 @@ appstore-inputs: viewkit-inputs
 	@watch applications/appstore/src/**
 	@watch applications/appstore/manifest.toml
 
+disk-utility-inputs: viewkit-inputs
+	@watch applications/disk-utility/Cargo.toml
+	@watch applications/disk-utility/Cargo.lock
+	@watch applications/disk-utility/src/**
+	@watch applications/disk-utility/manifest.toml
+	@watch tools/devkit/crates/appcore/src/**
+
 calendar-inputs: viewkit-inputs
 	@watch applications/calendar/Cargo.toml
 	@watch applications/calendar/Cargo.lock
@@ -222,7 +229,7 @@ keychain-inputs: viewkit-inputs
 	@watch tools/devkit/crates/appcore/src/**
 	@watch user/crates/keychain-protocol/**
 
-applications-inputs: keychain-inputs mail-inputs calculator-inputs calendar-inputs appstore-inputs binder-inputs edit-inputs files-inputs installer-inputs settings-inputs system-monitor-inputs terra-inputs viewer-inputs terminal-inputs
+applications-inputs: disk-utility-inputs keychain-inputs mail-inputs calculator-inputs calendar-inputs appstore-inputs binder-inputs edit-inputs files-inputs installer-inputs settings-inputs system-monitor-inputs terra-inputs viewer-inputs terminal-inputs
 	@watch applications/test.app/Cargo.toml
 	@watch applications/test.app/Cargo.lock
 	@watch applications/test.app/src/**

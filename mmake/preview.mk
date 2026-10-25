@@ -50,3 +50,7 @@ preview-mail:
 preview-keychain:
 	@always
 	$(SCRIPTS)/dev/preview-app.sh keychain run $(CARGO_PATCHES)
+
+preview-disk-utility:
+	@always
+	$(SCRIPTS)/dev/preview-app.sh disk-utility run $(CARGO_PATCHES)

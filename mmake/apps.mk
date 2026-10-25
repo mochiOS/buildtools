@@ -20,6 +20,10 @@ calculator: calculator-inputs viewkit
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/calculator
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/calculator/Cargo.toml --bin calculator
 
+disk-utility: disk-utility-inputs viewkit
+	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/disk-utility
+	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/disk-utility/Cargo.toml --bin disk-utility
+
 calendar: calendar-inputs viewkit
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/calendar
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/calendar/Cargo.toml --bin calendar
@@ -119,6 +123,7 @@ apps-bundle: applications-inputs viewkit
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/mail
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/calculator
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/calendar
+	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/disk-utility
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/appstore
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/binder
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/edit
@@ -135,6 +140,7 @@ apps-bundle: applications-inputs viewkit
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/appstore/Cargo.toml --bin appstore
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/calculator/Cargo.toml --bin calculator
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/calendar/Cargo.toml --bin calendar
+	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/disk-utility/Cargo.toml --bin disk-utility
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/binder/Cargo.toml --bin binder
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/edit/Cargo.toml --bin edit
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/file/Cargo.toml --bin files
@@ -146,4 +152,4 @@ apps-bundle: applications-inputs viewkit
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/terminal/Cargo.toml --bin terminal
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/test.app/Cargo.toml --bin test_app
 
-apps: appstore keychain mail calculator calendar binder edit files installer settings system-monitor terra viewer terminal test-app
+apps: disk-utility appstore keychain mail calculator calendar binder edit files installer settings system-monitor terra viewer terminal test-app
