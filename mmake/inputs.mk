@@ -193,6 +193,7 @@ disk-utility-inputs: viewkit-inputs
 	@watch applications/disk-utility/Cargo.toml
 	@watch applications/disk-utility/Cargo.lock
 	@watch applications/disk-utility/src/**
+	@watch applications/disk-utility/appicon.png
 	@watch applications/disk-utility/manifest.toml
 	@watch tools/devkit/crates/appcore/src/**
 
