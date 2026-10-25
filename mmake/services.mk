@@ -32,6 +32,7 @@ filesystem-service: runtime rust-sysroot
 	$(MOCHIOS_CARGO) --config "patch.\"https://github.com/mochiOS/syscalls\".mochios-filesystem-protocol.path='$(ROOT)/user/crates/filesystem-protocol'" --manifest-path $(ROOT)/services/filesystem/Cargo.toml --bin filesystem-service
 
 posix-service: runtime rust-sysroot
+	@watch version.toml
 	@watch services/posix/**
 	@watch user/crates/posix-protocol/**
 	@watch user/crates/posix-client/**
