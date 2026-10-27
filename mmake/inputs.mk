@@ -75,6 +75,8 @@ runtime-inputs: config rust-source-state newlib-source-state
 	@watch libraries/libc/newlib/**
 
 viewkit-inputs: runtime-inputs fonts-inputs
+	@watch libraries/fonts/Cargo.toml
+	@watch libraries/fonts/src/**
 	@watch version.toml
 	@watch mboot/Cargo.toml
 	@watch libraries/viewkit/Cargo.toml
@@ -189,6 +191,15 @@ appstore-inputs: viewkit-inputs
 	@watch applications/appstore/src/**
 	@watch applications/appstore/manifest.toml
 
+fonts-app-inputs: viewkit-inputs
+	@watch applications/fonts/Cargo.toml
+	@watch applications/fonts/Cargo.lock
+	@watch applications/fonts/src/**
+	@watch applications/fonts/appicon.png
+	@watch applications/fonts/manifest.toml
+	@watch libraries/fonts/src/**
+	@watch libraries/fonts/Cargo.toml
+
 disk-utility-inputs: viewkit-inputs
 	@watch applications/disk-utility/Cargo.toml
 	@watch applications/disk-utility/Cargo.lock
@@ -230,7 +241,7 @@ keychain-inputs: viewkit-inputs
 	@watch tools/devkit/crates/appcore/src/**
 	@watch user/crates/keychain-protocol/**
 
-applications-inputs: disk-utility-inputs keychain-inputs mail-inputs calculator-inputs calendar-inputs appstore-inputs binder-inputs edit-inputs files-inputs installer-inputs settings-inputs system-monitor-inputs terra-inputs viewer-inputs terminal-inputs
+applications-inputs: fonts-app-inputs disk-utility-inputs keychain-inputs mail-inputs calculator-inputs calendar-inputs appstore-inputs binder-inputs edit-inputs files-inputs installer-inputs settings-inputs system-monitor-inputs terra-inputs viewer-inputs terminal-inputs
 	@watch applications/test.app/Cargo.toml
 	@watch applications/test.app/Cargo.lock
 	@watch applications/test.app/src/**

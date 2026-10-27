@@ -54,3 +54,7 @@ preview-keychain:
 preview-disk-utility:
 	@always
 	$(SCRIPTS)/dev/preview-app.sh disk-utility run $(CARGO_PATCHES)
+
+preview-fonts:
+	@always
+	$(SCRIPTS)/dev/preview-app.sh fonts run $(CARGO_PATCHES)
