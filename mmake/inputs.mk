@@ -110,6 +110,7 @@ services-inputs: runtime-inputs
 	@watch services/signature/**
 	@watch services/tty/**
 	@watch services/update/**
+	@watch tools/devkit/crates/device-consent/**
 	@watch services/user/**
 
 binder-inputs: viewkit-inputs
@@ -138,6 +139,7 @@ files-inputs: viewkit-inputs
 	@watch applications/file/manifest.toml
 
 installer-inputs: viewkit-inputs
+	@watch tools/devkit/crates/device-consent/**
 	@watch applications/installer/Cargo.toml
 	@watch applications/installer/Cargo.lock
 	@watch applications/installer/src/**

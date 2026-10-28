@@ -95,6 +95,7 @@ tty: runtime rust-sysroot
 
 update-service: runtime rust-sysroot
 	@watch services/update/**
+	@watch tools/devkit/crates/device-consent/**
 	@watch version.toml
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/update
 	features=; if grep -qx 'DEVELOPMENT_SYSTEM_SIGNATURES=y' $(ROOT)/.config; then features=--features=development-system-key; fi; \
