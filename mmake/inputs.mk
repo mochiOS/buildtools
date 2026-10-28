@@ -141,7 +141,8 @@ installer-inputs: viewkit-inputs
 	@watch applications/installer/Cargo.toml
 	@watch applications/installer/Cargo.lock
 	@watch applications/installer/src/**
-	@watch applications/installer/appicon.svg
+	@watch applications/installer/appicon.png
+	@watch applications/installer/legal/**
 	@watch applications/installer/manifest.toml
 
 settings-inputs: viewkit-inputs
