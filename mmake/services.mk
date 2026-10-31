@@ -6,6 +6,7 @@ capability: runtime rust-sysroot
 compositor: runtime rust-sysroot
 	@watch services/compositor/**
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/compositor
+	python3 $(SCRIPTS)/dev/check-ui-boundaries.py
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/compositor/Cargo.toml --bin compositor
 
 core-service: runtime rust-sysroot

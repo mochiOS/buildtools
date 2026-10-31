@@ -26,12 +26,16 @@ ui-test:
 	@always
 	$(SCRIPTS)/dev/preview-app.sh test all $(CARGO_PATCHES)
 
+ui-boundaries:
+	@always
+	python3 $(SCRIPTS)/dev/check-ui-boundaries.py
+
 # Linux desktop and actual host applications, without building the OS image.
-ui: ime-dictionary
+ui: ime-dictionary ui-boundaries
 	@always
 	$(SCRIPTS)/dev/desktop-ui.sh run $(CARGO_PATCHES)
 
-ui-check:
+ui-check: ui-boundaries
 	@always
 	$(SCRIPTS)/dev/desktop-ui.sh --check $(CARGO_PATCHES)
 
