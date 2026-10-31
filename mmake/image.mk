@@ -1,5 +1,6 @@
 rootfs-stage: programs drivers fonts ime-dictionary filesystem-inputs msign-tool
 	@watch scripts/mmake/stage-rootfs.sh
+	@watch scripts/dev/stage-application-resources.py
 	@watch scripts/mmake/development-users.db
 	@output $(MMAKE_OUT)/image/rootfs/.ready
 	$(SCRIPTS)/mmake/stage-rootfs.sh $(ROOT) $(MMAKE_OUT) $(MSIGN)

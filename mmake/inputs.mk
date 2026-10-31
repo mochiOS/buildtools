@@ -128,6 +128,7 @@ edit-inputs: viewkit-inputs
 	@watch tools/devkit/crates/appcore/src/**
 	@watch applications/edit/appicon.png
 	@watch applications/edit/manifest.toml
+	@watch applications/edit/resources/**
 
 files-inputs: viewkit-inputs
 	@watch applications/file/Cargo.toml
