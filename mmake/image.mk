@@ -1,5 +1,12 @@
-rootfs-stage: programs drivers fonts ime-dictionary filesystem-inputs msign-tool
+rootfs-stage: programs drivers fonts ime-dictionary filesystem-inputs msign-tool config
 	@watch scripts/mmake/stage-rootfs.sh
+	@watch scripts/mmake/stage-development-tools.py
+	@watch out/newlib-port/sdk/**
+	@watch out/llvm-port/build-target/bin/clang-18
+	@watch out/llvm-port/build-target/bin/lld
+	@watch out/llvm-port/build-target/lib/clang/18/include/**
+	@watch out/rust-std/target/x86_64-unknown-mochios/release/ld
+	@watch out/rust-std/target/x86_64-unknown-mochios/release/msign
 	@watch scripts/dev/stage-application-resources.py
 	@watch scripts/mmake/development-users.db
 	@output $(MMAKE_OUT)/image/rootfs/.ready
