@@ -192,7 +192,10 @@ viewer-inputs: viewkit-inputs
 
 appstore-inputs: viewkit-inputs
 	@watch applications/appstore/Cargo.toml
+	@watch applications/appstore/Cargo.lock
 	@watch applications/appstore/src/**
+	@watch tools/devkit/crates/appcore/Cargo.toml
+	@watch tools/devkit/crates/appcore/src/**
 	@watch applications/appstore/manifest.toml
 
 fonts-app-inputs: viewkit-inputs
