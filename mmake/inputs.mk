@@ -157,6 +157,9 @@ settings-inputs: viewkit-inputs
 	@watch applications/settings/manifest.toml
 
 terminal-inputs: viewkit-inputs
+	@watch tools/devkit/Cargo.toml
+	@watch tools/devkit/Cargo.lock
+	@watch tools/devkit/crates/appcore/**
 	@watch applications/terminal/Cargo.toml
 	@watch applications/terminal/Cargo.lock
 	@watch applications/terminal/src/**
