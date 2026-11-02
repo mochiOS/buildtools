@@ -62,3 +62,7 @@ preview-disk-utility:
 preview-fonts:
 	@always
 	$(SCRIPTS)/dev/preview-app.sh fonts run $(CARGO_PATCHES)
+
+preview-terra:
+	@always
+	$(SCRIPTS)/dev/preview-app.sh terra run $(CARGO_PATCHES)
