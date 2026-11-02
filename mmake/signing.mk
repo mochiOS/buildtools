@@ -10,6 +10,7 @@ msign-tool:
 	@watch tools/devkit/Cargo.toml
 	@watch tools/devkit/Cargo.lock
 	@watch tools/devkit/crates/msign/**
+	@watch user/crates/package-manifest/**
 	@output $(MSIGN)
 	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS=$(JOBS) cargo build --offline $(SIGNING_CARGO_PATCHES) --release --manifest-path $(ROOT)/tools/devkit/Cargo.toml --package msign --target-dir $(HOST_TOOLS_DIR)
 
