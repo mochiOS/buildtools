@@ -45,4 +45,4 @@ binaries-bundle: runtime rust-sysroot
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/binaries/coreutils/Cargo.toml --bins
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/user/apps/rust-std-demo/Cargo.toml --bin rust-std-demo
 
-programs: services apps msh coreutils rust-std-demo
+programs: services apps msh coreutils rust-std-demo vim
