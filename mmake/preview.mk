@@ -1,3 +1,5 @@
+APP ?=
+
 preview-files:
 	@always
 	$(SCRIPTS)/dev/preview-app.sh files run $(CARGO_PATCHES)
@@ -63,6 +65,7 @@ preview-fonts:
 	@always
 	$(SCRIPTS)/dev/preview-app.sh fonts run $(CARGO_PATCHES)
 
-preview-terra:
+preview-app:
 	@always
-	$(SCRIPTS)/dev/preview-app.sh terra run $(CARGO_PATCHES)
+	test -n "$(APP)" || { echo 'usage: mmake preview-app APP=<application-directory>' >&2; exit 2; }
+	$(SCRIPTS)/dev/preview-app.sh $(APP) run $(CARGO_PATCHES)

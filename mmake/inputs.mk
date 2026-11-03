@@ -175,15 +175,6 @@ system-monitor-inputs: viewkit-inputs
 	@watch applications/system-monitor/appicon.png
 	@watch applications/system-monitor/manifest.toml
 
-terra-inputs: viewkit-inputs
-	@watch applications/terra/Cargo.toml
-	@watch applications/terra/Cargo.lock
-	@watch applications/terra/src/**
-	@watch tools/devkit/crates/appcore/Cargo.toml
-	@watch tools/devkit/crates/appcore/src/**
-	@watch applications/terra/appicon.png
-	@watch applications/terra/manifest.toml
-
 viewer-inputs: viewkit-inputs
 	@watch applications/viewer/Cargo.toml
 	@watch applications/viewer/Cargo.lock
@@ -200,6 +191,7 @@ appstore-inputs: viewkit-inputs
 	@watch tools/devkit/crates/appcore/Cargo.toml
 	@watch tools/devkit/crates/appcore/src/**
 	@watch applications/appstore/manifest.toml
+	@watch applications/appstore/initial-apps.json
 
 fonts-app-inputs: viewkit-inputs
 	@watch applications/fonts/Cargo.toml
@@ -251,7 +243,7 @@ keychain-inputs: viewkit-inputs
 	@watch tools/devkit/crates/appcore/src/**
 	@watch user/crates/keychain-protocol/**
 
-applications-inputs: fonts-app-inputs disk-utility-inputs keychain-inputs mail-inputs calculator-inputs calendar-inputs appstore-inputs binder-inputs edit-inputs files-inputs installer-inputs settings-inputs system-monitor-inputs terra-inputs viewer-inputs terminal-inputs
+applications-inputs: fonts-app-inputs disk-utility-inputs keychain-inputs mail-inputs calculator-inputs calendar-inputs appstore-inputs binder-inputs edit-inputs files-inputs installer-inputs settings-inputs system-monitor-inputs viewer-inputs terminal-inputs
 	@watch applications/test.app/Cargo.toml
 	@watch applications/test.app/Cargo.lock
 	@watch applications/test.app/src/**
