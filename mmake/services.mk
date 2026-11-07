@@ -5,6 +5,10 @@ capability: runtime rust-sysroot
 
 compositor: runtime rust-sysroot
 	@watch services/compositor/**
+	@watch libraries/bootui/Cargo.toml
+	@watch libraries/bootui/src/**
+	@watch scripts/mmake/build-boot-logo.rs
+	@watch resources/system/icons/mochimochi-kun.png
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/compositor
 	python3 $(SCRIPTS)/dev/check-ui-boundaries.py
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/compositor/Cargo.toml --bin compositor
@@ -18,6 +22,10 @@ core-service: runtime rust-sysroot
 
 display: runtime rust-sysroot
 	@watch services/display/**
+	@watch libraries/bootui/Cargo.toml
+	@watch libraries/bootui/src/**
+	@watch scripts/mmake/build-boot-logo.rs
+	@watch resources/system/icons/mochimochi-kun.png
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/display
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/display/Cargo.toml --bin display
 

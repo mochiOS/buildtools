@@ -10,6 +10,7 @@ kernel-inputs: config
 	@watch core/x86_64-mochios.json
 
 boot-inputs: config
+	@watch scripts/mmake/build-boot-logo.rs
 	@watch .config
 	@watch boot/Cargo.toml
 	@watch boot/Cargo.lock
