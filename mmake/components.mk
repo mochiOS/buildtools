@@ -16,8 +16,9 @@ runtime: runtime-inputs
 	@output $(OUT)/newlib-port/sdk/lib/linker.ld
 	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_NET_OFFLINE=true bash $(ROOT)/user/scripts/build-newlib.sh --newlib-source $(ROOT)/libraries/newlib --output $(OUT)/newlib-port --abi-source $(ROOT)/core/crates/abi --libc-source $(ROOT)/libraries/libc --mboot-protocol-source $(ROOT)/services/mboot-protocol --syscalls-source $(ROOT)/user --toolchain nightly-2026-05-14 --jobs $(JOBS)
 
-rust-sysroot: runtime-inputs
+rust-sysroot: rust-source-state
 	@watch scripts/mmake/prepare-rust-sysroot.sh
+	@watch build/rust-std-toolchain
 	@output $(OUT)/rust-std/sysroot-overlay/.ready
 	$(SCRIPTS)/mmake/prepare-rust-sysroot.sh $(ROOT) $(MMAKE_OUT)
 
