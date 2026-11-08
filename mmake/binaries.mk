@@ -9,6 +9,8 @@ coreutils: runtime rust-sysroot
 	@watch binaries/coreutils/Cargo.toml
 	@watch binaries/coreutils/Cargo.lock
 	@watch binaries/coreutils/src/**
+	@watch user/crates/test-support/**
+	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/os-test
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/mperf
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/mpk
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/net
@@ -30,11 +32,13 @@ binaries-bundle: runtime rust-sysroot
 	@watch binaries/coreutils/Cargo.toml
 	@watch binaries/coreutils/Cargo.lock
 	@watch binaries/coreutils/src/**
+	@watch user/crates/test-support/**
 	@watch binaries/coreutils/manifest.toml
 	@watch user/apps/rust-std-demo/Cargo.toml
 	@watch user/apps/rust-std-demo/Cargo.lock
 	@watch user/apps/rust-std-demo/src/**
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/msh
+	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/os-test
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/mperf
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/mpk
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/net

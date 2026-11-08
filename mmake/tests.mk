@@ -1,3 +1,18 @@
+test:
+	@watch tests/catalog.toml
+	@watch scripts/test.py
+	@watch scripts/testing/**
+	@always
+	python3 $(SCRIPTS)/test.py kvm --build
+
+host-test:
+	@watch tests/catalog.toml
+	@watch tests/test_testing.py
+	@watch scripts/test.py
+	@watch scripts/testing/**
+	@always
+	python3 $(SCRIPTS)/test.py host
+
 smoke-log-test:
 	@watch scripts/check-smoke-logs.sh
 	@watch scripts/tests/smoke-log-check-test.sh
