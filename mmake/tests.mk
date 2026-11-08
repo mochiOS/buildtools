@@ -1,9 +1,9 @@
-test:
+test: image
 	@watch tests/catalog.toml
 	@watch scripts/test.py
 	@watch scripts/testing/**
 	@always
-	python3 $(SCRIPTS)/test.py kvm --build
+	python3 $(SCRIPTS)/test.py kvm
 
 host-test:
 	@watch tests/catalog.toml
