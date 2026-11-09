@@ -119,13 +119,20 @@ ab-trial-b-image: ab-layout-image boot-selection-seed
 	@output $(MMAKE_OUT)/image/ab-trial-b.img
 	bash $(SCRIPTS)/mmake/build-ab-slot-b-image.sh $(MMAKE_OUT) $(MMAKE_OUT)/components/boot-selection-seed trial
 
-artifacts: disk-image initfs kernel bootloader
+symbols: rootfs-stage kernel
+	@watch scripts/dev/archive-symbols.py
+	@watch version.toml
+	@output $(MMAKE_OUT)/symbols/index.json
+	python3 $(SCRIPTS)/dev/archive-symbols.py --root $(ROOT) --rootfs $(MMAKE_OUT)/image/rootfs --kernel $(MMAKE_OUT)/components/kernel.elf --kernel-debug $(MMAKE_OUT)/components/kernel.debug --store $(MMAKE_OUT)/symbols
+
+artifacts: disk-image initfs kernel bootloader symbols
 	@watch scripts/mmake/collect-artifacts.sh
 	@output $(OUT)/artifacts/disk.img
 	@output $(OUT)/artifacts/initfs.img
 	@output $(OUT)/artifacts/kernel.elf
 	@output $(OUT)/artifacts/BOOTX64.EFI
 	@output $(OUT)/artifacts/SHA256SUMS
+	@output $(OUT)/artifacts/symbols-index.json
 	$(SCRIPTS)/mmake/collect-artifacts.sh $(ROOT) $(MMAKE_OUT)
 
 image: artifacts

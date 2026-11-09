@@ -27,7 +27,7 @@ kernel: kernel-inputs
 	@output $(MMAKE_OUT)/components/kernel.debug
 	@output $(MMAKE_OUT)/components/kernel.meta
 	mkdir -p $(MMAKE_OUT)/components
-	toolchain=`sed -n 's/^KERNEL_RUST_TOOLCHAIN=//p' $(ROOT)/.config | tr -d '"' | tail -n1`; features=kernel-bin; if grep -qx 'KERNEL_PERFORMANCE_INSTRUMENTATION=y' $(ROOT)/.config; then features=$features,performance-instrumentation; fi; RUSTFLAGS='--cfg curve25519_dalek_backend="serial"' cargo "+$toolchain" build --offline -Z build-std=core,alloc,compiler_builtins --release --target x86_64-unknown-none --target-dir $(MMAKE_OUT)/targets/kernel --features "$features" --manifest-path $(ROOT)/core/Cargo.toml
+	toolchain=`sed -n 's/^KERNEL_RUST_TOOLCHAIN=//p' $(ROOT)/.config | tr -d '"' | tail -n1`; features=kernel-bin; if grep -qx 'KERNEL_PERFORMANCE_INSTRUMENTATION=y' $(ROOT)/.config; then features=$features,performance-instrumentation; fi; RUSTFLAGS='--cfg curve25519_dalek_backend="serial" -C debuginfo=1' cargo "+$toolchain" build --offline -Z build-std=core,alloc,compiler_builtins --release --target x86_64-unknown-none --target-dir $(MMAKE_OUT)/targets/kernel --features "$features" --manifest-path $(ROOT)/core/Cargo.toml
 	objcopy --only-keep-debug $(MMAKE_OUT)/targets/kernel/x86_64-unknown-none/release/kernel $(MMAKE_OUT)/components/kernel.debug
 	objcopy --strip-all $(MMAKE_OUT)/targets/kernel/x86_64-unknown-none/release/kernel $(MMAKE_OUT)/components/kernel.elf
 	objcopy --add-gnu-debuglink=$(MMAKE_OUT)/components/kernel.debug $(MMAKE_OUT)/components/kernel.elf
