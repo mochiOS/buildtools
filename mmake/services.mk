@@ -81,6 +81,7 @@ package-service: runtime rust-sysroot
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/package/Cargo.toml --bin package
 
 secure-ui: runtime rust-sysroot viewkit
+	@watch tools/devkit/crates/device-consent/**
 	@watch services/secure-ui/**
 	@watch services/permission-prompt-protocol/**
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/secure-ui
