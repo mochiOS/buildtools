@@ -1,4 +1,5 @@
 capability: runtime rust-sysroot
+	@watch tools/devkit/crates/device-consent/**
 	@watch services/capability/**
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/capability
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/capability/Cargo.toml --bin capability

@@ -150,6 +150,7 @@ installer-inputs: viewkit-inputs
 	@watch applications/installer/manifest.toml
 
 settings-inputs: viewkit-inputs
+	@watch tools/devkit/crates/device-consent/**
 	@watch applications/settings/Cargo.toml
 	@watch applications/settings/Cargo.lock
 	@watch applications/settings/build.rs
