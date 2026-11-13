@@ -1,5 +1,8 @@
 rootfs-stage: programs drivers fonts ime-dictionary filesystem-inputs msign-tool config
 	@watch scripts/mmake/stage-rootfs.sh
+	@watch scripts/mmake/stage-system-libraries.py
+	@watch build/system-libraries.toml
+	@watch out/system-libraries/**
 	@watch scripts/mmake/stage-development-tools.py
 	@watch out/newlib-port/sdk/**
 	@watch out/llvm-port/build-target/bin/clang-18

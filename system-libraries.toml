@@ -1,0 +1,8 @@
+format = 1
+
+# Produced by mochiOS/libs tools/package_webkit.py from verified target bundles.
+# Installation is part of System image construction, never package.service.
+[[components]]
+package = "org.mochios.webkit"
+source = "out/system-libraries/webkit"
+manifest_sha256 = "a6a0f788cf34daf22028e457579ec534e511e5646106b83ef06aac5504dac966"
