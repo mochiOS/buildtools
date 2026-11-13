@@ -1,5 +1,5 @@
 # Terminal editor port; consume the configured native toolchain.
-vim: runtime rust-sysroot msign-tool
+vim: runtime-inputs runtime rust-sysroot msign-tool
 	@watch .config
 	@watch scripts/vim/**
 	@watch user/crates/**

@@ -176,7 +176,7 @@ service-manager-test:
 
 # Rebuild the standard inputs used by isolated native ABI/process fixtures.
 # This aggregate does not stage an image, launch a VM, or publish artifacts.
-native-test-tools: runtime rust-sysroot kernel bootloader msign-tool cexts app-sdk boot-selection-seed system-image-sign-tool system-slot-image-tool
+native-test-tools: runtime-inputs runtime rust-sysroot kernel bootloader msign-tool cexts app-sdk boot-selection-seed system-image-sign-tool system-slot-image-tool
 
 # Core services for private native fixtures; feature-built launchers use a
 # separate Cargo target directory and never replace the normal service manager.

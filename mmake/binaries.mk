@@ -1,11 +1,11 @@
-msh: runtime rust-sysroot
+msh: runtime-inputs runtime rust-sysroot
 	@watch binaries/msh/Cargo.toml
 	@watch binaries/msh/Cargo.lock
 	@watch binaries/msh/src/**
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/msh
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/binaries/msh/Cargo.toml --bin msh
 
-coreutils: runtime rust-sysroot
+coreutils: runtime-inputs runtime rust-sysroot
 	@watch binaries/coreutils/Cargo.toml
 	@watch binaries/coreutils/Cargo.lock
 	@watch binaries/coreutils/src/**
@@ -18,12 +18,12 @@ coreutils: runtime rust-sysroot
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/useradd
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/binaries/coreutils/Cargo.toml --bins
 
-rust-std-demo: runtime rust-sysroot
+rust-std-demo: runtime-inputs runtime rust-sysroot
 	@watch user/apps/rust-std-demo/**
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/rust-std-demo
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/user/apps/rust-std-demo/Cargo.toml --bin rust-std-demo
 
-binaries-bundle: runtime rust-sysroot
+binaries-bundle: runtime-inputs runtime rust-sysroot
 	@watch binaries/msh/Cargo.toml
 	@watch binaries/msh/Cargo.lock
 	@watch binaries/msh/src/**

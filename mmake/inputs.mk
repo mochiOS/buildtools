@@ -56,7 +56,9 @@ newlib-source-state:
 	@output $(MMAKE_OUT)/fingerprints/newlib.sha256
 	$(SCRIPTS)/mmake/source-fingerprint.sh $(ROOT)/libraries/newlib $(MMAKE_OUT)/fingerprints/newlib.sha256
 
-runtime-inputs: config rust-source-state newlib-source-state
+# Only native runtime dependencies rebuild/install the C SDK. Rust consumers
+# still watch all user crates through runtime-inputs below.
+runtime-sdk-inputs: config rust-source-state newlib-source-state
 	@watch .config
 	@watch build/rust-std-toolchain
 	@watch core/crates/abi/**
@@ -64,7 +66,18 @@ runtime-inputs: config rust-source-state newlib-source-state
 	@watch out/mmake/fingerprints/newlib.sha256
 	@watch user/Cargo.toml
 	@watch user/Cargo.lock
-	@watch user/crates/**
+	@watch user/crates/newlib-runtime/**
+	@watch user/crates/syscall/**
+	@watch user/crates/runtime/**
+	@watch user/crates/platform/**
+	@watch user/crates/capability-protocol/**
+	@watch user/crates/filesystem-protocol/**
+	@watch user/crates/posix-client/**
+	@watch user/crates/posix-protocol/**
+	@watch user/crates/net-device-protocol/**
+	@watch user/crates/package-manifest/**
+	@watch user/crates/user-protocol/**
+	@watch user/crates/workspace-protocol/**
 	@watch user/libc-port/include/**
 	@watch user/libc-port/tests/**
 	@watch user/runtime/**
@@ -74,6 +87,9 @@ runtime-inputs: config rust-source-state newlib-source-state
 	@watch libraries/libc/build.rs
 	@watch libraries/libc/src/**
 	@watch libraries/libc/newlib/**
+
+runtime-inputs: runtime-sdk-inputs
+	@watch user/crates/**
 
 viewkit-inputs: runtime-inputs fonts-inputs
 	@watch libraries/fonts/Cargo.toml

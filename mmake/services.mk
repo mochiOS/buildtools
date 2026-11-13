@@ -1,10 +1,10 @@
-capability: runtime rust-sysroot
+capability: runtime-inputs runtime rust-sysroot
 	@watch tools/devkit/crates/device-consent/**
 	@watch services/capability/**
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/capability
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/capability/Cargo.toml --bin capability
 
-compositor: runtime rust-sysroot
+compositor: runtime-inputs runtime rust-sysroot
 	@watch services/compositor/**
 	@watch libraries/bootui/Cargo.toml
 	@watch libraries/bootui/src/**
@@ -14,14 +14,14 @@ compositor: runtime rust-sysroot
 	python3 $(SCRIPTS)/dev/check-ui-boundaries.py
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/compositor/Cargo.toml --bin compositor
 
-core-service: runtime rust-sysroot
+core-service: runtime-inputs runtime rust-sysroot
 	@watch services/core/**
 	@watch services/filesystem/**
 	@watch services/third_party/ext4plus/**
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/core
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/core/Cargo.toml --bin core
 
-display: runtime rust-sysroot
+display: runtime-inputs runtime rust-sysroot
 	@watch services/display/**
 	@watch libraries/bootui/Cargo.toml
 	@watch libraries/bootui/src/**
@@ -30,18 +30,18 @@ display: runtime rust-sysroot
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/display
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/display/Cargo.toml --bin display
 
-drivers-service: runtime rust-sysroot
+drivers-service: runtime-inputs runtime rust-sysroot
 	@watch services/drivers/**
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/drivers
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/drivers/Cargo.toml --bin drivers
 
-filesystem-service: runtime rust-sysroot
+filesystem-service: runtime-inputs runtime rust-sysroot
 	@watch services/filesystem/**
 	@watch user/crates/filesystem-protocol/**
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/filesystem-service
 	$(MOCHIOS_CARGO) --config "patch.\"https://github.com/mochiOS/syscalls\".mochios-filesystem-protocol.path='$(ROOT)/user/crates/filesystem-protocol'" --manifest-path $(ROOT)/services/filesystem/Cargo.toml --bin filesystem-service
 
-posix-service: runtime rust-sysroot
+posix-service: runtime-inputs runtime rust-sysroot
 	@watch version.toml
 	@watch services/posix/**
 	@watch user/crates/posix-protocol/**
@@ -49,62 +49,62 @@ posix-service: runtime rust-sysroot
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/posix-service
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/posix/Cargo.toml --bin posix-service
 
-input: runtime rust-sysroot
+input: runtime-inputs runtime rust-sysroot
 	@watch services/input/**
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/input
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/input/Cargo.toml --bin input
 
-linux-service: runtime rust-sysroot
+linux-service: runtime-inputs runtime rust-sysroot
 	@watch services/linux/**
 	@watch services/mboot-protocol/**
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/linux
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/linux/Cargo.toml --bin linux
 
-logger: runtime rust-sysroot
+logger: runtime-inputs runtime rust-sysroot
 	@watch services/logger/**
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/logger
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/logger/Cargo.toml --bin logger
 
-mboot-agent: runtime rust-sysroot
+mboot-agent: runtime-inputs runtime rust-sysroot
 	@watch services/mboot-agent/**
 	@watch services/mboot-protocol/**
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/mboot-agent
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/mboot-agent/Cargo.toml --bin mboot-agent
 
-network: runtime rust-sysroot
+network: runtime-inputs runtime rust-sysroot
 	@watch services/network/**
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/network
 	$(MOCHIOS_CARGO) --config "patch.\"https://github.com/mochiOS/syscalls\".mochios-net-device-protocol.path='$(ROOT)/user/crates/net-device-protocol'" --manifest-path $(ROOT)/services/network/Cargo.toml --bin network
 
-package-service: runtime rust-sysroot
+package-service: runtime-inputs runtime rust-sysroot
 	@watch services/package/**
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/package
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/package/Cargo.toml --bin package
 
-secure-ui: runtime rust-sysroot viewkit
+secure-ui: runtime-inputs runtime rust-sysroot viewkit
 	@watch tools/devkit/crates/device-consent/**
 	@watch services/secure-ui/**
 	@watch services/permission-prompt-protocol/**
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/secure-ui
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/secure-ui/Cargo.toml --bin secure-ui
 
-service-manager: runtime rust-sysroot
+service-manager: runtime-inputs runtime rust-sysroot
 	@watch services/service-manager/**
 	@watch services/permission-prompt-protocol/**
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/service-manager
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/service-manager/Cargo.toml --bin service-manager
 
-signature: runtime rust-sysroot
+signature: runtime-inputs runtime rust-sysroot
 	@watch services/signature/**
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/signature
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/signature/Cargo.toml --bin signature
 
-tty: runtime rust-sysroot
+tty: runtime-inputs runtime rust-sysroot
 	@watch services/tty/**
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/tty
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/tty/Cargo.toml --bin tty
 
-update-service: runtime rust-sysroot
+update-service: runtime-inputs runtime rust-sysroot
 	@watch services/update/**
 	@watch tools/devkit/crates/device-consent/**
 	@watch version.toml
@@ -112,13 +112,13 @@ update-service: runtime rust-sysroot
 	features=; if grep -qx 'DEVELOPMENT_SYSTEM_SIGNATURES=y' $(ROOT)/.config; then features=--features=development-system-key; fi; \
 	$(MOCHIOS_CARGO) --config "patch.\"https://github.com/mochiOS/syscalls\".mochios-net-device-protocol.path='$(ROOT)/user/crates/net-device-protocol'" --manifest-path $(ROOT)/services/update/Cargo.toml --bin update $features
 
-user-service: runtime rust-sysroot
+user-service: runtime-inputs runtime rust-sysroot
 	@watch services/user/**
 	@watch user/crates/keychain-protocol/**
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/user-service
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/services/user/Cargo.toml --bin user-service
 
-workspace-service: runtime rust-sysroot
+workspace-service: runtime-inputs runtime rust-sysroot
 	@watch services/workspace/**
 	@watch user/crates/workspace-protocol/**
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/workspace-service
@@ -150,7 +150,7 @@ services-bundle: services-inputs runtime rust-sysroot
 
 services: keychain-service capability compositor core-service display drivers-service filesystem-service input linux-service logger mboot-agent network package-service posix-service secure-ui service-manager signature tty update-service user-service workspace-service
 
-keychain-service: runtime rust-sysroot
+keychain-service: runtime-inputs runtime rust-sysroot
 	@watch services/keychain/**
 	@watch user/crates/keychain-protocol/**
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/keychain-service
