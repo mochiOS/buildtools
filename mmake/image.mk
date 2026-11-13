@@ -1,4 +1,4 @@
-rootfs-stage: system-programs drivers fonts ime-dictionary filesystem-inputs msign-tool config
+rootfs-stage: system-programs drivers fonts ime-dictionary filesystem-inputs msign-tool development-tools config
 	@watch scripts/mmake/stage-rootfs.sh
 	@watch scripts/mmake/image-applications.py
 	@watch build/application-sets.toml
