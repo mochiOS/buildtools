@@ -41,7 +41,7 @@ binder-test: viewkit
 	@watch applications/binder/Cargo.lock
 	@watch applications/binder/src/**
 	@always
-	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS=$(JOBS) cargo test --offline $(CARGO_PATCHES) --manifest-path $(ROOT)/applications/binder/Cargo.toml --target-dir $(MMAKE_OUT)/targets/binder
+	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS="${MMAKE_JOBS}" cargo test --offline $(CARGO_PATCHES) --manifest-path $(ROOT)/applications/binder/Cargo.toml --target-dir $(MMAKE_OUT)/targets/binder
 
 edit: edit-inputs viewkit
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/edit
@@ -55,7 +55,7 @@ edit-test: viewkit
 	@watch tools/devkit/Cargo.lock
 	@watch tools/devkit/crates/appcore/**
 	@always
-	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS=$(JOBS) cargo test --offline $(CARGO_PATCHES) --manifest-path $(ROOT)/applications/edit/Cargo.toml --target-dir $(MMAKE_OUT)/targets/edit
+	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS="${MMAKE_JOBS}" cargo test --offline $(CARGO_PATCHES) --manifest-path $(ROOT)/applications/edit/Cargo.toml --target-dir $(MMAKE_OUT)/targets/edit
 
 files: files-inputs viewkit
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/files
@@ -81,7 +81,7 @@ system-monitor-test: viewkit
 	@watch tools/devkit/Cargo.lock
 	@watch tools/devkit/crates/appcore/**
 	@always
-	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS=$(JOBS) cargo test --offline $(CARGO_PATCHES) --manifest-path $(ROOT)/applications/system-monitor/Cargo.toml --target-dir $(MMAKE_OUT)/targets/system-monitor
+	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS="${MMAKE_JOBS}" cargo test --offline $(CARGO_PATCHES) --manifest-path $(ROOT)/applications/system-monitor/Cargo.toml --target-dir $(MMAKE_OUT)/targets/system-monitor
 
 viewer: viewer-inputs viewkit
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/viewer
@@ -95,7 +95,7 @@ viewer-test: viewkit
 	@watch tools/devkit/Cargo.lock
 	@watch tools/devkit/crates/appcore/**
 	@always
-	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS=$(JOBS) cargo test --offline $(CARGO_PATCHES) --manifest-path $(ROOT)/applications/viewer/Cargo.toml --target-dir $(MMAKE_OUT)/targets/viewer
+	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS="${MMAKE_JOBS}" cargo test --offline $(CARGO_PATCHES) --manifest-path $(ROOT)/applications/viewer/Cargo.toml --target-dir $(MMAKE_OUT)/targets/viewer
 
 terminal: terminal-inputs viewkit
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/terminal

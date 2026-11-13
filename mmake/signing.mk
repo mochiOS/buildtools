@@ -12,21 +12,21 @@ msign-tool:
 	@watch tools/devkit/crates/msign/**
 	@watch user/crates/package-manifest/**
 	@output $(MSIGN)
-	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS=$(JOBS) cargo build --offline $(SIGNING_CARGO_PATCHES) --release --manifest-path $(ROOT)/tools/devkit/Cargo.toml --package msign --target-dir $(HOST_TOOLS_DIR)
+	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS="${MMAKE_JOBS}" cargo build --offline $(SIGNING_CARGO_PATCHES) --release --manifest-path $(ROOT)/tools/devkit/Cargo.toml --package msign --target-dir $(HOST_TOOLS_DIR)
 
 msign-elf-test:
 	@watch tools/devkit/Cargo.toml
 	@watch tools/devkit/Cargo.lock
 	@watch tools/devkit/crates/msign/**
 	@always
-	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS=$(JOBS) cargo test --offline $(SIGNING_CARGO_PATCHES) --manifest-path $(ROOT)/tools/devkit/Cargo.toml --package msign --target-dir $(HOST_TOOLS_DIR) elf
+	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS="${MMAKE_JOBS}" cargo test --offline $(SIGNING_CARGO_PATCHES) --manifest-path $(ROOT)/tools/devkit/Cargo.toml --package msign --target-dir $(HOST_TOOLS_DIR) elf
 
 msign-test:
 	@watch tools/devkit/Cargo.toml
 	@watch tools/devkit/Cargo.lock
 	@watch tools/devkit/crates/msign/**
 	@always
-	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS=$(JOBS) cargo test --offline $(SIGNING_CARGO_PATCHES) --manifest-path $(ROOT)/tools/devkit/Cargo.toml --package msign --target-dir $(HOST_TOOLS_DIR)
+	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS="${MMAKE_JOBS}" cargo test --offline $(SIGNING_CARGO_PATCHES) --manifest-path $(ROOT)/tools/devkit/Cargo.toml --package msign --target-dir $(HOST_TOOLS_DIR)
 
 msign-elf-format:
 	@watch tools/devkit/crates/msign/src/cli.rs
@@ -42,7 +42,7 @@ mpack-tool:
 	@watch tools/devkit/Cargo.lock
 	@watch tools/devkit/crates/mpack/**
 	@output $(MPACK)
-	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS=$(JOBS) cargo build --offline $(SIGNING_CARGO_PATCHES) --release --manifest-path $(ROOT)/tools/devkit/Cargo.toml --package mpack --target-dir $(HOST_TOOLS_DIR)
+	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS="${MMAKE_JOBS}" cargo build --offline $(SIGNING_CARGO_PATCHES) --release --manifest-path $(ROOT)/tools/devkit/Cargo.toml --package mpack --target-dir $(HOST_TOOLS_DIR)
 
 appcore: viewkit
 	@watch tools/devkit/Cargo.toml
@@ -63,8 +63,8 @@ appcore-test: appcore
 	@watch user/crates/platform/Cargo.toml
 	@watch user/crates/platform/src/**
 	@always
-	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS=$(JOBS) cargo test --offline $(CARGO_PATCHES) --manifest-path $(ROOT)/tools/devkit/Cargo.toml --package mochios-appcore --target-dir $(MMAKE_OUT)/targets/appcore
-	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS=$(JOBS) cargo check --offline $(CARGO_PATCHES) --manifest-path $(ROOT)/tools/devkit/Cargo.toml --package mochios-appcore --no-default-features --target-dir $(MMAKE_OUT)/targets/appcore-no-ui
+	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS="${MMAKE_JOBS}" cargo test --offline $(CARGO_PATCHES) --manifest-path $(ROOT)/tools/devkit/Cargo.toml --package mochios-appcore --target-dir $(MMAKE_OUT)/targets/appcore
+	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_BUILD_JOBS="${MMAKE_JOBS}" cargo check --offline $(CARGO_PATCHES) --manifest-path $(ROOT)/tools/devkit/Cargo.toml --package mochios-appcore --no-default-features --target-dir $(MMAKE_OUT)/targets/appcore-no-ui
 	cc -std=c11 -Wall -Wextra -Werror -fsyntax-only -I$(ROOT)/tools/devkit/crates/appcore/include -I$(ROOT)/libraries/viewkit/lib/include $(ROOT)/tools/devkit/crates/appcore/tests/header.c
 
 appcore-format:
