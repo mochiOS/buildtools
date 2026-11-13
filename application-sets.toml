@@ -1,0 +1,75 @@
+format = 1
+
+# Application payloads included in every System image.
+[[system]]
+source = "binder"
+bundle = "Binder.app"
+binary = "binder"
+package = "binder"
+target = "binder"
+[[system]]
+source = "settings"
+bundle = "Settings.app"
+binary = "settings"
+package = "settings"
+target = "settings"
+[[system]]
+source = "file"
+bundle = "Files.app"
+binary = "files"
+package = "files"
+target = "files"
+[[system]]
+source = "terminal"
+bundle = "Terminal.app"
+binary = "terminal"
+package = "terminal"
+target = "terminal"
+[[system]]
+source = "appstore"
+bundle = "AppStore.app"
+binary = "appstore"
+package = "appstore"
+target = "appstore"
+[[system]]
+source = "disk-utility"
+bundle = "DiskUtility.app"
+binary = "disk-utility"
+package = "disk-utility"
+target = "disk-utility"
+[[system]]
+source = "viewer"
+bundle = "Viewer.app"
+binary = "viewer"
+package = "viewer"
+target = "viewer"
+[[system]]
+source = "fonts"
+bundle = "Fonts.app"
+binary = "fonts"
+package = "fonts"
+target = "fonts-app"
+[[system]]
+source = "system-monitor"
+bundle = "SystemMonitor.app"
+binary = "system-monitor"
+package = "system-monitor"
+target = "system-monitor"
+[[system]]
+source = "keychain"
+bundle = "Keychain.app"
+binary = "keychain"
+package = "keychain-app"
+target = "keychain"
+
+# Added only to the separate installation-media image.
+[[installer]]
+source = "installer"
+bundle = "Installer.app"
+binary = "installer"
+package = "installer"
+target = "installer"
+
+[distribution]
+appstore = ["Terra.app", "Edit.app", "Calendar.app", "Mail.app", "Calculator.app"]
+development = ["test.app"]

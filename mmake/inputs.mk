@@ -271,7 +271,10 @@ cext-inputs: runtime-inputs
 	@watch cexts/disk.cext/**
 	@watch scripts/pack-cext.pl
 
-filesystem-inputs: applications-inputs services-inputs drivers-inputs cext-inputs fonts-inputs
+filesystem-inputs: system-applications-inputs services-inputs drivers-inputs cext-inputs fonts-inputs
+	@watch build/application-sets.toml
+	@watch build/mmake/application-sets.mk
+	@watch applications/installer/legal/**
 	@watch binaries/coreutils/Cargo.toml
 	@watch binaries/coreutils/Cargo.lock
 	@watch binaries/coreutils/src/**

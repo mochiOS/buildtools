@@ -50,3 +50,6 @@ binaries-bundle: runtime rust-sysroot
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/user/apps/rust-std-demo/Cargo.toml --bin rust-std-demo
 
 programs: services apps msh coreutils rust-std-demo vim
+
+# Keep the all-application developer target separate from image prerequisites.
+system-programs: services system-apps msh coreutils rust-std-demo vim

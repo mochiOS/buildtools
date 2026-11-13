@@ -1,15 +1,12 @@
-rootfs-stage: programs drivers fonts ime-dictionary filesystem-inputs msign-tool config
+rootfs-stage: system-programs drivers fonts ime-dictionary filesystem-inputs msign-tool config
 	@watch scripts/mmake/stage-rootfs.sh
+	@watch scripts/mmake/image-applications.py
+	@watch build/application-sets.toml
 	@watch scripts/mmake/stage-system-libraries.py
 	@watch build/system-libraries.toml
 	@watch out/system-libraries/**
 	@watch scripts/mmake/stage-development-tools.py
 	@watch out/newlib-port/sdk/**
-	@watch out/llvm-port/build-target/bin/clang-18
-	@watch out/llvm-port/build-target/bin/lld
-	@watch out/llvm-port/build-target/lib/clang/18/include/**
-	@watch out/rust-std/target/x86_64-unknown-mochios/release/ld
-	@watch out/rust-std/target/x86_64-unknown-mochios/release/msign
 	@watch scripts/dev/stage-application-resources.py
 	@watch scripts/mmake/development-users.db
 	@output $(MMAKE_OUT)/image/rootfs/.ready
@@ -180,3 +177,32 @@ clean:
 clean-runner:
 	@always
 	rm -rf $(OUT)/runner
+
+# Installer UI is exclusive to this separate, first-boot image. Installer's
+# existing write gate is unchanged; this target does not enable disk writes.
+installer-rootfs-stage: rootfs-stage installer-apps installer-applications-inputs
+	@watch scripts/mmake/stage-rootfs.sh
+	@watch scripts/mmake/image-applications.py
+	@watch build/application-sets.toml
+	@output $(MMAKE_OUT)/installer/image/rootfs/.ready
+	$(SCRIPTS)/mmake/stage-rootfs.sh $(ROOT) $(MMAKE_OUT) $(MSIGN) installer
+
+installer-image: installer-rootfs-stage bootloader kernel core-service cexts config
+	@watch scripts/mmake/make-installer-image.sh
+	@watch scripts/mmake/make-ext2-image.sh
+	@watch scripts/mmake/make-data-image.sh
+	@watch scripts/mmake/stage-initfs.sh
+	@watch scripts/mmake/make-esp-image.sh
+	@watch scripts/mmake/make-disk-image.sh
+	@watch scripts/mmake/patch-disk-partition.py
+	@watch scripts/mmake/sync-ext2.py
+	@watch scripts/mmake/pack-boot-module.pl
+	@watch scripts/mmake/pack-boot-extensions.py
+	@watch boot/config/kernel.conf
+	@output $(MMAKE_OUT)/installer/image/disk.img
+	@output $(OUT)/installer-artifacts/disk.img
+	bash $(SCRIPTS)/mmake/make-installer-image.sh $(ROOT) $(MMAKE_OUT)
+
+image-applications-test:
+	@always
+	python3 $(SCRIPTS)/tests/image-applications-test.py
