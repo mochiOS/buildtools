@@ -180,4 +180,4 @@ native-test-tools: runtime rust-sysroot kernel bootloader msign-tool cexts app-s
 
 # Core services for private native fixtures; feature-built launchers use a
 # separate Cargo target directory and never replace the normal service manager.
-native-test-services: native-test-tools core-service capability filesystem-service posix-service user-service logger
+native-test-services: native-test-tools core-service capability filesystem-service posix-service user-service logger signature package-service workspace-service secure-ui input compositor drivers-service msh terminal
