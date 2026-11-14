@@ -5,6 +5,10 @@ test: image
 	@always
 	python3 $(SCRIPTS)/test.py kvm
 
+git-dependencies-test:
+	@always
+	python3 $(SCRIPTS)/tests/git-dependencies-test.py
+
 host-test:
 	@watch tests/catalog.toml
 	@watch tests/test_testing.py
