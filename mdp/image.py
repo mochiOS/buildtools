@@ -208,13 +208,15 @@ def bind(msign,source,stage,directory,maps=(),exclude=()):
 
 def stage(root,lock,variant):
     """Place verified areas, select product apps, then produce real built-in trust records."""
-    tree,manifests,files=artifact_tree(root,lock)
     config={}
     for line in (root/'.config').read_text().splitlines():
         if line and not line.startswith('#') and '=' in line:
             key,value=line.split('=',1);config[key]=value.strip('"')
     required={'kernel','boot','services','drivers','cexts','runtime','std-demo','fonts','msh','coreutils','devkit-host','image-data','system-components'}
     if config.get('USER_INSTALL_DEVELOPER_TOOLS')=='y':required.add('devkit-native')
+    declared={a['package']['name'] for a in json.loads(lock.read_text())['artifacts']}
+    check(required<=declared,'composition is missing required producers: '+', '.join(sorted(required-declared))+'; run mdp workspace build')
+    tree,manifests,files=artifact_tree(root,lock)
     names={m['package']['name'] for m in manifests}
     check(required<=names,'composition is missing required producers: '+', '.join(sorted(required-names)))
     base=root/'out/mmake'
@@ -308,8 +310,10 @@ def main():
     parser.add_argument('--variant',choices=['system','installer'],default='system')
     args=parser.parse_args()
     root=args.root.resolve()
+    sys.path.insert(0,str(root/'tools/mdp/src'))
+    from mdp.cli import Error as MDPError
     try:stage(root,args.lock or root/'mdp.assembly.lock',args.variant)
-    except (Error,__import__("mdp.cli",fromlist=["Error"]).Error,OSError,ValueError,KeyError,TypeError,subprocess.CalledProcessError,tarfile.TarError) as error:
+    except (Error,MDPError,OSError,ValueError,KeyError,TypeError,subprocess.CalledProcessError,tarfile.TarError) as error:
         print('image assembly: '+str(error),file=sys.stderr);return 1
     return 0
 
