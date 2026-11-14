@@ -5,4 +5,4 @@ format = 1
 [[components]]
 package = "org.mochios.webkit"
 source = "out/system-libraries/webkit"
-manifest_sha256 = "f072a078534783f79110f08aebfbea32d75052d101abc1e1d27df1fa7167963b"
+manifest_sha256 = "2febf7858b36350a627429ad81a66ab81a1fcce4fae58d89833048dc8f871ab5"
