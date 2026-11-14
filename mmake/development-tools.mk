@@ -6,11 +6,17 @@ bootstrap:
 
 # This target consumes a reviewed assembly lock. It never invokes producers.
 # The output must not already exist; use MDP_OUTPUT for a new composition.
-MDP_ASSEMBLY_LOCK ?= $(ROOT)/mdp.assembly.lock
-MDP_OUTPUT ?= $(OUT)/mdp/assembled
 mdp-assemble:
 	@always
-	$(ROOT)/tools/mdp/mdp assemble --lock $(MDP_ASSEMBLY_LOCK) --output $(MDP_OUTPUT)
+	python3 $(SCRIPTS)/dev/assemble-mdp.py
+
+development-environment-test:
+	@always
+	python3 -m unittest discover -s $(ROOT)/tools/mdp/tests -q
+	python3 -m unittest discover -s $(ROOT)/tools/mdev/tests -q
+	python3 $(SCRIPTS)/tests/development-bootstrap-test.py -q
+	python3 $(SCRIPTS)/tests/development-mdp-test.py -q
+	bash -n $(SCRIPTS)/runner.sh $(SCRIPTS)/dev/run-vm.sh
 
 development-tools: runtime-inputs runtime rust-sysroot config
 	@always
