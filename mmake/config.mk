@@ -12,5 +12,5 @@ menuconfig:
 	@always
 	make -C $(ROOT)/build build ROOT=$(ROOT) OUT=$(OUT)
 	test -t 0
-	$(OUT)/host/menuconfig --schema $(ROOT)/build/schema.conf --config $(ROOT)/.config </dev/tty >/dev/tty 2>&1
+	$(OUT)/build/host/menuconfig --schema $(ROOT)/build/schema.conf --config $(ROOT)/.config </dev/tty >/dev/tty 2>&1
 	perl $(SCRIPTS)/config/merge-config.pl --default $(ROOT)/build/defaults.config --in $(ROOT)/.config --out $(ROOT)/.config --mk $(ROOT)/build/config.mk

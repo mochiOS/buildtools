@@ -14,7 +14,7 @@ output = Path(__file__).resolve().parents[1] / 'out/mdp/system-components'
 if output.exists():
     shutil.rmtree(output)
 output.mkdir(parents=True)
-stage_components(root, root / 'build/system-libraries.toml', output, root / 'out/mmake/host-tools/release/msign')
+stage_components(root, root / 'build/system-libraries.toml', output, root / 'out/build/os/host-tools/release/msign')
 metadata = output / 'manifests'
 metadata.mkdir()
 records = []

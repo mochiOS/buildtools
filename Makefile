@@ -7,7 +7,7 @@ HOSTCC		?= cc
 HOSTCFLAGS	?= -std=c11 -Wall -Wextra -O2
 HOSTLDLIBS	?= -lncurses
 
-MENUCONFIG	= $(OUT)/host/menuconfig
+MENUCONFIG	= $(OUT)/build/host/menuconfig
 
 .PHONY: all build menuconfig clean
 
@@ -16,7 +16,7 @@ all: build
 build: $(MENUCONFIG)
 
 $(MENUCONFIG): menuconfig.c
-	@mkdir -p $(OUT)/host
+	@mkdir -p $(OUT)/build/host
 	@$(HOSTCC) $(HOSTCFLAGS) -o $@ $< $(HOSTLDLIBS)
 
 menuconfig: build

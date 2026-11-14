@@ -80,12 +80,12 @@ symbols: rootfs-stage
 
 artifacts: disk-image initfs symbols
 	@watch scripts/mmake/collect-artifacts.sh
-	@output $(OUT)/artifacts/disk.img
-	@output $(OUT)/artifacts/initfs.img
-	@output $(OUT)/artifacts/kernel.elf
-	@output $(OUT)/artifacts/BOOTX64.EFI
-	@output $(OUT)/artifacts/SHA256SUMS
-	@output $(OUT)/artifacts/symbols-index.json
+	@output $(OUT)/images/system/disk.img
+	@output $(OUT)/images/system/initfs.img
+	@output $(OUT)/images/system/kernel.elf
+	@output $(OUT)/images/system/BOOTX64.EFI
+	@output $(OUT)/images/system/SHA256SUMS
+	@output $(OUT)/images/system/symbols-index.json
 	$(SCRIPTS)/mmake/collect-artifacts.sh $(ROOT) $(MMAKE_OUT)
 
 image: artifacts
@@ -98,14 +98,14 @@ run: image
 
 run-existing:
 	@always
-	test -f $(OUT)/artifacts/disk.img
+	test -f $(OUT)/images/system/disk.img
 	bash $(SCRIPTS)/dev/run-vm.sh
 
 measure-kernel-size: image
 	@watch scripts/measure-kernel-size.pl
-	@output $(OUT)/metrics/kernel-size.json
-	mkdir -p $(OUT)/metrics
-	perl $(SCRIPTS)/measure-kernel-size.pl --kernel $(OUT)/artifacts/kernel.elf --output $(OUT)/metrics/kernel-size.json
+	@output $(OUT)/reports/metrics/kernel-size.json
+	mkdir -p $(OUT)/reports/metrics
+	perl $(SCRIPTS)/measure-kernel-size.pl --kernel $(OUT)/images/system/kernel.elf --output $(OUT)/reports/metrics/kernel-size.json
 
 # Hardware-media production belongs to mBoot's optional MDP producer.
 mboot-image: rootfs-stage
@@ -114,14 +114,14 @@ mboot-image: rootfs-stage
 
 release: full mboot-image
 	@always
-	mkdir -p $(OUT)/releases
-	cp --reflink=auto --sparse=always $(OUT)/mochiOS.img $(OUT)/releases/mochiOS.img.new
-	chmod 0644 $(OUT)/releases/mochiOS.img.new
-	mv $(OUT)/releases/mochiOS.img.new $(OUT)/releases/mochiOS.img
+	mkdir -p $(OUT)/images/releases
+	cp --reflink=auto --sparse=always $(OUT)/images/hardware/mochiOS.img $(OUT)/images/releases/mochiOS.img.new
+	chmod 0644 $(OUT)/images/releases/mochiOS.img.new
+	mv $(OUT)/images/releases/mochiOS.img.new $(OUT)/images/releases/mochiOS.img
 
 clean:
 	@always
-	rm -rf $(MMAKE_OUT)/image $(MMAKE_OUT)/symbols $(OUT)/artifacts $(OUT)/installer-artifacts $(OUT)/releases
+	rm -rf $(MMAKE_OUT)/image $(MMAKE_OUT)/symbols $(OUT)/images/system $(OUT)/images/installer $(OUT)/images/releases
 	rm -rf $(ROOT)/.mmake
 
 clean-runner:
@@ -147,7 +147,7 @@ installer-image: installer-rootfs-stage
 	@watch scripts/mmake/pack-boot-extensions.py
 	@watch boot/config/kernel.conf
 	@output $(MMAKE_OUT)/installer/image/disk.img
-	@output $(OUT)/installer-artifacts/disk.img
+	@output $(OUT)/images/installer/disk.img
 	bash $(SCRIPTS)/mmake/make-installer-image.sh $(ROOT) $(MMAKE_OUT)
 
 image-applications-test:

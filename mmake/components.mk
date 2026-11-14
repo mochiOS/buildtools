@@ -10,16 +10,16 @@ ime-dictionary:
 	expected=`cut -d' ' -f1 $(ROOT)/build/ime/ja.mime.sha256`; output=$(MMAKE_OUT)/components/ime/ja.mime; if test -f "$output" && printf '%s  %s\n' "$expected" "$output" | sha256sum -c - >/dev/null 2>&1; then exit 0; fi; temporary="$output.new"; rm -f "$temporary"; curl --fail --location --retry 3 --output "$temporary" https://storage.mochios.org/mochios/ime/ja.mime; printf '%s  %s\n' "$expected" "$temporary" | sha256sum -c -; test `stat -c %s "$temporary"` -eq 163123094; chmod 0644 "$temporary"; mv "$temporary" "$output"
 
 runtime: runtime-sdk-inputs
-	@output $(OUT)/newlib-port/sdk/lib/crt0.o
-	@output $(OUT)/newlib-port/sdk/lib/libmochi_user_newlib_runtime.a
-	@output $(OUT)/newlib-port/sdk/lib/libgcc.a
-	@output $(OUT)/newlib-port/sdk/lib/linker.ld
-	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_NET_OFFLINE=true bash $(ROOT)/user/scripts/build-newlib.sh --newlib-source $(ROOT)/libraries/newlib --output $(OUT)/newlib-port --abi-source $(ROOT)/core/crates/abi --libc-source $(ROOT)/libraries/libc --mboot-protocol-source $(ROOT)/services/mboot-protocol --syscalls-source $(ROOT)/user --toolchain nightly-2026-05-14 --jobs "${MMAKE_JOBS}"
+	@output $(OUT)/cache/newlib/sdk/lib/crt0.o
+	@output $(OUT)/cache/newlib/sdk/lib/libmochi_user_newlib_runtime.a
+	@output $(OUT)/cache/newlib/sdk/lib/libgcc.a
+	@output $(OUT)/cache/newlib/sdk/lib/linker.ld
+	env CARGO_HOME="${CARGO_HOME:-${HOME}/.cargo}" CARGO_NET_OFFLINE=true bash $(ROOT)/user/scripts/build-newlib.sh --newlib-source $(ROOT)/libraries/newlib --output $(OUT)/cache/newlib --abi-source $(ROOT)/core/crates/abi --libc-source $(ROOT)/libraries/libc --mboot-protocol-source $(ROOT)/services/mboot-protocol --syscalls-source $(ROOT)/user --toolchain nightly-2026-05-14 --jobs "${MMAKE_JOBS}"
 
 rust-sysroot: rust-source-state
 	@watch scripts/mmake/prepare-rust-sysroot.sh
 	@watch build/rust-std-toolchain
-	@output $(OUT)/rust-std/sysroot-overlay/.ready
+	@output $(OUT)/cache/rust/sysroot-overlay/.ready
 	$(SCRIPTS)/mmake/prepare-rust-sysroot.sh $(ROOT) $(MMAKE_OUT)
 
 kernel: kernel-inputs
@@ -45,5 +45,5 @@ app-sdk: fonts runtime rust-sysroot
 	@watch scripts/dev/export-app-sdk.py
 	@watch build/mmake/toolchain.mk
 	@watch version.toml
-	@output $(OUT)/newlib-port/sdk/share/app-build.json
-	python3 $(SCRIPTS)/dev/export-app-sdk.py --root $(ROOT) --sdk $(OUT)/newlib-port/sdk --output $(OUT)/newlib-port/sdk/share/app-build.json
+	@output $(OUT)/cache/newlib/sdk/share/app-build.json
+	python3 $(SCRIPTS)/dev/export-app-sdk.py --root $(ROOT) --sdk $(OUT)/cache/newlib/sdk --output $(OUT)/cache/newlib/sdk/share/app-build.json

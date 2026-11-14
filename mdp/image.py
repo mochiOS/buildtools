@@ -77,7 +77,7 @@ def artifact_tree(root, lock_path, areas=None):
     raw=lock_path.read_bytes();lock=json.loads(raw)
     check(lock.get('format')==1 and lock.get('target')=='x86_64-mochios' and lock.get('abi')=='mochios-1','unsupported OS composition target/ABI')
     areas=set(areas) if areas is not None else {'system','data','boot','initfs','host-tools','applications','manifests','metadata','symbols'}
-    selected=root/'out/mdp/assemblies'/(hashlib.sha256(raw+json.dumps(sorted(areas)).encode()).hexdigest()+'-image')
+    selected=root/'out/cache/mdp/assemblies'/(hashlib.sha256(raw+json.dumps(sorted(areas)).encode()).hexdigest()+'-image')
     manifests=[]
     policy=tomllib.loads((root/'build/mdp/policy.toml').read_text())
     names=set();files={}
@@ -219,7 +219,7 @@ def stage(root,lock,variant):
     tree,manifests,files=artifact_tree(root,lock)
     names={m['package']['name'] for m in manifests}
     check(required<=names,'composition is missing required producers: '+', '.join(sorted(required-names)))
-    base=root/'out/mmake'
+    base=root/'out/build/os'
     work=base if variant=='system' else base/'installer'
     pending=work/'image/rootfs.new'
     if pending.exists():shutil.rmtree(pending)

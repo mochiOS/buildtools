@@ -1,6 +1,7 @@
 # Development environment setup and artifact-only gates.
 bootstrap:
 	@always
+	python3 $(SCRIPTS)/dev/migrate-output-layout.py --root $(ROOT)
 	python3 $(SCRIPTS)/dev/bootstrap.py
 
 # This target consumes a reviewed assembly lock. It never invokes producers.
@@ -15,6 +16,7 @@ development-environment-test:
 	python3 -m unittest discover -s $(ROOT)/tools/mdev/tests -q
 	python3 $(SCRIPTS)/tests/development-bootstrap-test.py -q
 	python3 $(SCRIPTS)/tests/development-mdp-test.py -q
+	python3 $(SCRIPTS)/tests/output-layout-test.py -q
 	bash -n $(SCRIPTS)/runner.sh $(SCRIPTS)/dev/run-vm.sh
 
 # Native tools are produced by tools/devkit/mdp.native.toml.
@@ -25,3 +27,8 @@ development-tools:
 mdp-migration-test:
 	@always
 	python3 $(SCRIPTS)/tests/mdp-migration-test.py -q
+
+# Explicit, idempotent migration; preserves existing compiler caches and VM disks.
+migrate-output-layout:
+	@always
+	python3 $(SCRIPTS)/dev/migrate-output-layout.py --root $(ROOT)

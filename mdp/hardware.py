@@ -11,5 +11,6 @@ parser.add_argument('--root',type=Path,required=True)
 args=parser.parse_args();root=args.root.resolve()
 tree,manifests,files=artifact_tree(root,root/'mdp.assembly.lock',{'hardware-media'})
 check(files.get('hardware-media/mochiOS.img',(None,))[0]=='mboot','Build mBoot after composing the OS image: mdp workspace build --select mboot')
-source=tree/'hardware-media/mochiOS.img';target=root/'out/mochiOS.img'
+source=tree/'hardware-media/mochiOS.img';target=root/'out/images/hardware/mochiOS.img'
+target.parent.mkdir(parents=True,exist_ok=True)
 shutil.copyfile(source,target)

@@ -1,6 +1,6 @@
 # Static, display-only command list. This target never builds or discovers inputs.
 MMAKE_HELP_INTRO := 'mochiOS image assembly' 'Usage: mmake [OPTIONS] <target>'
-MMAKE_HELP_GENERAL := 'Setup:' '  bootstrap  Install local mdp and mdev commands (Python 3.11+)' '  config  olddefconfig  menuconfig  Configure the product'
+MMAKE_HELP_GENERAL := 'Setup:' '  bootstrap  Install local mdp and mdev commands (Python 3.11+)' '  migrate-output-layout  Move existing outputs into images/build/cache/reports' '  config  olddefconfig  menuconfig  Configure the product'
 MMAKE_HELP_PRODUCERS := 'Build repositories separately with mdp:' '  mdp workspace lock  Record reviewed source, SDK and configuration inputs' '  mdp workspace build -j 4  Build all default producers and lock their artifacts' '  mdp workspace build --select app-terminal -j 4  Build one producer and its dependencies' '  mdp build --context <SDK-context.json>  Build from an independent repository'
 MMAKE_HELP_BUILD := 'Assemble existing locked artifacts (no producer builds):' '  all  build  image  full  Create the normal OS image' '  installer-image  Create the separate installer image' '  mdp-assemble  Compose MDP_ASSEMBLY_LOCK into MDP_OUTPUT' '  rootfs-stage  rootfs  data  initfs-stage  initfs  esp  disk-image  artifacts  symbols'
 MMAKE_HELP_VM := 'VMs:' '  run  Assemble the image and start the selected mdev VM' '  run-existing  Start with an existing image' '  mdev list  List development VMs' '  mdev --help  VM creation, selection and lifecycle commands'
