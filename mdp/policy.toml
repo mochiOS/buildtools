@@ -62,6 +62,9 @@ metadata = ["app-installer.json"]
 [producers.mboot]
 hardware-media = ["mochiOS.img"]
 
+[producers.boot-hardware]
+hardware-domains = ["mochios-system"]
+
 [producers.std-demo]
 system = ["bin/rust-std-demo"]
 manifests = ["rust-std-demo.toml"]
