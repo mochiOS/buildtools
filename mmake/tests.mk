@@ -120,7 +120,7 @@ boot-assets-signature-smoke-test-kvm: ab-layout-test smoke-log-test
 secure-boot-smoke-test-kvm: ab-layout-test smoke-log-test
 	@watch scripts/tests/secure-boot-kvm-test.sh
 	@always
-	bash $(SCRIPTS)/tests/secure-boot-kvm-test.sh $(ROOT) $(MMAKE_OUT)/image/ab-layout.img $(MMAKE_OUT)/targets/bootloader/x86_64-unknown-uefi/release/boot.efi
+	bash $(SCRIPTS)/tests/secure-boot-kvm-test.sh $(ROOT) $(MMAKE_OUT)/image/ab-layout.img $(MMAKE_OUT)/components/BOOTX64.EFI
 
 anti-rollback-smoke-test-kvm: ab-layout-test smoke-log-test
 	@watch scripts/tests/anti-rollback-kvm-test.sh
