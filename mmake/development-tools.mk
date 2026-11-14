@@ -1,5 +1,17 @@
 # This lightweight gate checks its bounded stage receipts on every invocation.
 # Unchanged builds do not run CMake, Cargo, or download LLVM again.
+bootstrap:
+	@always
+	python3 $(SCRIPTS)/dev/bootstrap.py
+
+# This target consumes a reviewed assembly lock. It never invokes producers.
+# The output must not already exist; use MDP_OUTPUT for a new composition.
+MDP_ASSEMBLY_LOCK ?= $(ROOT)/mdp.assembly.lock
+MDP_OUTPUT ?= $(OUT)/mdp/assembled
+mdp-assemble:
+	@always
+	$(ROOT)/tools/mdp/mdp assemble --lock $(MDP_ASSEMBLY_LOCK) --output $(MDP_OUTPUT)
+
 development-tools: runtime-inputs runtime rust-sysroot config
 	@always
 	@watch scripts/mmake/build-development-tools.py

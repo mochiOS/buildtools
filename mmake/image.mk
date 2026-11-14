@@ -142,12 +142,12 @@ full: image
 
 run: image
 	@always
-	$(SCRIPTS)/runner.sh
+	bash $(SCRIPTS)/dev/run-vm.sh
 
 run-existing:
 	@always
 	test -f $(OUT)/artifacts/disk.img
-	$(SCRIPTS)/runner.sh
+	bash $(SCRIPTS)/dev/run-vm.sh
 
 measure-kernel-size: image
 	@watch scripts/measure-kernel-size.pl

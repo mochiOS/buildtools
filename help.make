@@ -1,7 +1,7 @@
 # Static, display-only target list. No build dependencies or discovery scripts.
 MMAKE_HELP_INTRO := 'mochiOS build targets' 'Usage: mmake [OPTIONS] <target>'
-MMAKE_HELP_GENERAL := '  help  Show this list (no build steps)'
-MMAKE_HELP_BUILD := 'Build and run:' '  all  build  image  full  run  run-existing  release  mboot-image  measure-kernel-size'
+MMAKE_HELP_GENERAL := '  help  Show this list (no build steps)' '  bootstrap  Install local mdp and mdev commands (Python 3.11+; no downloads)'
+MMAKE_HELP_BUILD := 'Build and run:' '  all  build  image  full  run  run-existing  release  mboot-image  measure-kernel-size' '  mdp-assemble  Compose locked MDPs without building producers (MDP_ASSEMBLY_LOCK, MDP_OUTPUT)'
 MMAKE_HELP_CONFIG := 'Configuration:' '  app-sdk  config  olddefconfig  menuconfig' '  development-tools  Build configured native Clang/LLD and offline signing tools'
 MMAKE_HELP_PREVIEW := 'Linux UI and previews:' '  preview-files  preview-settings  preview-binder  preview-appstore  preview-edit  preview-app APP=<directory>  preview-check' '  ui-test  ui-boundaries  ui  ui-check  preview-calendar  preview-calculator  preview-mail' '  preview-keychain  preview-disk-utility  preview-fonts'
 MMAKE_HELP_COMPONENTS := 'Core components:' '  fonts  ime-dictionary  runtime  rust-sysroot  kernel  bootloader  drivers  cexts  mdriver'
