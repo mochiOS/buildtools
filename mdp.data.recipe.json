@@ -1,0 +1,26 @@
+{
+  "format": 1,
+  "steps": [
+    "mkdir -p $(MMAKE_OUT)/components/ime",
+    "expected=`cut -d' ' -f1 $(PROJECT)/ime/ja.mime.sha256`; output=$(MMAKE_OUT)/components/ime/ja.mime; if test -f \"$output\" && printf '%s  %s\\n' \"$expected\" \"$output\" | sha256sum -c - >/dev/null 2>&1; then exit 0; fi; temporary=\"$output.new\"; rm -f \"$temporary\"; curl --fail --location --retry 3 --output \"$temporary\" https://storage.mochios.org/mochios/ime/ja.mime; printf '%s  %s\\n' \"$expected\" \"$temporary\" | sha256sum -c -; test `stat -c %s \"$temporary\"` -eq 163123094; chmod 0644 \"$temporary\"; mv \"$temporary\" \"$output\""
+  ],
+  "package": {
+    "name": "image-data",
+    "version": "0.1.0",
+    "target": "x86_64-mochios",
+    "abi": "mochios-1"
+  },
+  "artifact": "out/mdp/image-data.tar.mdp",
+  "exports": [
+    {
+      "source": "$(MMAKE_OUT)/components/ime/ja.mime",
+      "area": "system",
+      "destination": "libraries/ime/ja.mime"
+    },
+    {
+      "source": "ime/ja.mime.sha256",
+      "area": "system",
+      "destination": "libraries/ime/ja.mime.sha256"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "format": 1,
+  "steps": [
+    "python3 $(PROJECT)/mdp/import-system-components.py"
+  ],
+  "package": {
+    "name": "system-components",
+    "version": "0.1.0",
+    "target": "x86_64-mochios",
+    "abi": "mochios-1"
+  },
+  "artifact": "out/mdp/system-components.tar.mdp",
+  "exports": [
+    {
+      "source": "out/mdp/system-components/system",
+      "area": "system",
+      "destination": ""
+    },
+    {
+      "source": "out/mdp/system-components/manifests",
+      "area": "manifests",
+      "destination": ""
+    }
+  ],
+  "metadata": {
+    "component_catalog": true
+  }
+}

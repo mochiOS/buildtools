@@ -1,19 +1,8 @@
-rootfs-stage: system-programs drivers fonts ime-dictionary filesystem-inputs msign-tool development-tools config
-	@watch out/mmake/components/development-tools.json
-	@watch scripts/mmake/stage-rootfs.sh
-	@watch scripts/mmake/image-applications.py
-	@watch build/application-sets.toml
-	@watch scripts/mmake/stage-system-libraries.py
-	@watch build/system-libraries.toml
-	@watch out/system-libraries/**
-	@watch scripts/mmake/stage-development-tools.py
-	@watch out/newlib-port/sdk/**
-	@watch scripts/dev/stage-application-resources.py
-	@watch scripts/mmake/development-users.db
-	@output $(MMAKE_OUT)/image/rootfs/.ready
-	$(SCRIPTS)/mmake/stage-rootfs.sh $(ROOT) $(MMAKE_OUT) $(MSIGN)
+rootfs-stage: config
+	@always
+	python3 $(ROOT)/build/mdp/image.py --root $(ROOT)
 
-initfs-stage: core-service cexts rootfs
+initfs-stage: rootfs
 	@watch boot/config/kernel.conf
 	@watch scripts/mmake/stage-initfs.sh
 	@output $(MMAKE_OUT)/image/initfs/.ready
@@ -39,7 +28,7 @@ initfs: initfs-stage config
 	@output $(MMAKE_OUT)/image/initfs.img
 	$(SCRIPTS)/mmake/make-ext2-image.sh $(MMAKE_OUT)/image/initfs $(MMAKE_OUT)/image/initfs.img initfs $(ROOT)/.config
 
-esp: bootloader kernel initfs config
+esp: initfs config
 	@watch scripts/mmake/make-esp-image.sh
 	@output $(MMAKE_OUT)/image/esp.img
 	$(SCRIPTS)/mmake/make-esp-image.sh $(ROOT) $(MMAKE_OUT)
@@ -51,51 +40,14 @@ disk-image: esp rootfs data config
 	$(SCRIPTS)/mmake/make-disk-image.sh $(ROOT) $(MMAKE_OUT)
 
 # Separate, non-release A/B partition prototype. Never replace `disk-image`.
-boot-selection-seed:
-	@watch boot/crates/boot-selection/Cargo.toml
-	@watch boot/crates/boot-selection/src/lib.rs
-	@watch boot/crates/boot-selection/src/storage.rs
-	@watch boot/crates/boot-selection/src/bin/seed.rs
-	@output $(MMAKE_OUT)/components/boot-selection-seed
-	mkdir -p $(MMAKE_OUT)/components
-	cargo build --offline --release --manifest-path $(ROOT)/boot/crates/boot-selection/Cargo.toml --target-dir $(MMAKE_OUT)/targets/boot-selection-host --bin boot-selection-seed
-	install -m 0755 $(MMAKE_OUT)/targets/boot-selection-host/release/boot-selection-seed $(MMAKE_OUT)/components/boot-selection-seed
+# Host image tools are supplied by the boot MDP, never built by the root.
+boot-selection-seed: rootfs-stage
+boot-selection-confirm-test: rootfs-stage
+boot-selection-gpt-probe: rootfs-stage
+system-image-sign-tool: rootfs-stage
+system-slot-image-tool: rootfs-stage
 
-boot-selection-confirm-test:
-	@watch boot/crates/boot-selection/Cargo.toml
-	@watch boot/crates/boot-selection/src/lib.rs
-	@watch boot/crates/boot-selection/src/storage.rs
-	@watch boot/crates/boot-selection/src/bin/confirm_test.rs
-	@output $(MMAKE_OUT)/components/boot-selection-confirm-test
-	mkdir -p $(MMAKE_OUT)/components
-	cargo build --offline --release --manifest-path $(ROOT)/boot/crates/boot-selection/Cargo.toml --target-dir $(MMAKE_OUT)/targets/boot-selection-host --bin boot-selection-confirm-test
-	install -m 0755 $(MMAKE_OUT)/targets/boot-selection-host/release/boot-selection-confirm-test $(MMAKE_OUT)/components/boot-selection-confirm-test
-
-boot-selection-gpt-probe:
-	@watch boot/crates/boot-selection/Cargo.toml
-	@watch boot/crates/boot-selection/src/lib.rs
-	@watch boot/crates/boot-selection/src/gpt_identity.rs
-	@watch boot/crates/boot-selection/src/bin/gpt_probe.rs
-	@output $(MMAKE_OUT)/components/boot-selection-gpt-probe
-	mkdir -p $(MMAKE_OUT)/components
-	cargo build --offline --release --manifest-path $(ROOT)/boot/crates/boot-selection/Cargo.toml --target-dir $(MMAKE_OUT)/targets/boot-selection-host --bin boot-selection-gpt-probe
-	install -m 0755 $(MMAKE_OUT)/targets/boot-selection-host/release/boot-selection-gpt-probe $(MMAKE_OUT)/components/boot-selection-gpt-probe
-
-system-image-sign-tool:
-	@watch boot/Cargo.toml
-	@watch boot/crates/system-image/**
-	@output $(MMAKE_OUT)/components/system-image-sign
-	cargo build --offline --release --manifest-path $(ROOT)/boot/Cargo.toml --target-dir $(MMAKE_OUT)/targets/system-image-host --package mochios-system-image --features std --bin system-image-sign
-	install -m 0755 $(MMAKE_OUT)/targets/system-image-host/release/system-image-sign $(MMAKE_OUT)/components/system-image-sign
-
-system-slot-image-tool:
-	@watch boot/Cargo.toml
-	@watch boot/crates/system-image/**
-	@output $(MMAKE_OUT)/components/system-slot-image
-	cargo build --offline --release --manifest-path $(ROOT)/boot/Cargo.toml --target-dir $(MMAKE_OUT)/targets/system-image-host --package mochios-system-image --features std --bin system-slot-image
-	install -m 0755 $(MMAKE_OUT)/targets/system-image-host/release/system-slot-image $(MMAKE_OUT)/components/system-slot-image
-
-ab-esp: bootloader kernel initfs
+ab-esp: initfs
 	@watch scripts/mmake/make-ab-esp-image.sh
 	@output $(MMAKE_OUT)/image/ab-esp.img
 	bash $(SCRIPTS)/mmake/make-ab-esp-image.sh $(ROOT) $(MMAKE_OUT)
@@ -120,13 +72,13 @@ ab-trial-b-image: ab-layout-image boot-selection-seed
 	@output $(MMAKE_OUT)/image/ab-trial-b.img
 	bash $(SCRIPTS)/mmake/build-ab-slot-b-image.sh $(MMAKE_OUT) $(MMAKE_OUT)/components/boot-selection-seed trial
 
-symbols: rootfs-stage kernel
+symbols: rootfs-stage
 	@watch scripts/dev/archive-symbols.py
 	@watch version.toml
 	@output $(MMAKE_OUT)/symbols/index.json
 	python3 $(SCRIPTS)/dev/archive-symbols.py --root $(ROOT) --rootfs $(MMAKE_OUT)/image/rootfs --kernel $(MMAKE_OUT)/components/kernel.elf --kernel-debug $(MMAKE_OUT)/components/kernel.debug --store $(MMAKE_OUT)/symbols
 
-artifacts: disk-image initfs kernel bootloader symbols
+artifacts: disk-image initfs symbols
 	@watch scripts/mmake/collect-artifacts.sh
 	@output $(OUT)/artifacts/disk.img
 	@output $(OUT)/artifacts/initfs.img
@@ -155,13 +107,10 @@ measure-kernel-size: image
 	mkdir -p $(OUT)/metrics
 	perl $(SCRIPTS)/measure-kernel-size.pl --kernel $(OUT)/artifacts/kernel.elf --output $(OUT)/metrics/kernel-size.json
 
-mdriver:
+# Hardware-media production belongs to mBoot's optional MDP producer.
+mboot-image: rootfs-stage
 	@always
-	make -C $(ROOT)/mboot/mdriver build
-
-mboot-image: image mdriver
-	@always
-	make -C $(ROOT)/mboot image CONFIG=$(ROOT)/mboot/config/intel-hardware.toml MNU_DIR=$(ROOT)/core MOCHIOS_SYSTEM_DIR=$(ROOT)/boot IMAGE=$(OUT)/mochiOS.img PXE_DIR=$(OUT)/pxe UEFI_NET_DIR=$(OUT)/uefi-net MDRIVER_KERNEL=$(ROOT)/mboot/mdriver/output/artifacts/vmlinux MDRIVER_INITRAMFS=$(ROOT)/mboot/mdriver/output/artifacts/initramfs.cpio MOCHIOS_INITFS=$(OUT)/artifacts/initfs.img MOCHIOS_ROOTFS=$(OUT)/image-build/rootfs.img
+	python3 $(ROOT)/build/mdp/hardware.py --root $(ROOT)
 
 release: full mboot-image
 	@always
@@ -172,7 +121,7 @@ release: full mboot-image
 
 clean:
 	@always
-	rm -rf $(OUT)
+	rm -rf $(MMAKE_OUT)/image $(MMAKE_OUT)/symbols $(OUT)/artifacts $(OUT)/installer-artifacts $(OUT)/releases
 	rm -rf $(ROOT)/.mmake
 
 clean-runner:
@@ -181,14 +130,11 @@ clean-runner:
 
 # Installer UI is exclusive to this separate, first-boot image. Installer's
 # existing write gate is unchanged; this target does not enable disk writes.
-installer-rootfs-stage: rootfs-stage installer-apps installer-applications-inputs
-	@watch scripts/mmake/stage-rootfs.sh
-	@watch scripts/mmake/image-applications.py
-	@watch build/application-sets.toml
-	@output $(MMAKE_OUT)/installer/image/rootfs/.ready
-	$(SCRIPTS)/mmake/stage-rootfs.sh $(ROOT) $(MMAKE_OUT) $(MSIGN) installer
+installer-rootfs-stage: config
+	@always
+	python3 $(ROOT)/build/mdp/image.py --root $(ROOT) --variant installer
 
-installer-image: installer-rootfs-stage bootloader kernel core-service cexts config
+installer-image: installer-rootfs-stage
 	@watch scripts/mmake/make-installer-image.sh
 	@watch scripts/mmake/make-ext2-image.sh
 	@watch scripts/mmake/make-data-image.sh

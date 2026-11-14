@@ -1,3 +1,5 @@
 /.idea
 /*.mk
 /*.env
+/out/mdp/
+/.mdp/

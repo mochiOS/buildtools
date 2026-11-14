@@ -178,10 +178,10 @@ service-manager-test:
 	@always
 	cargo test --offline $(CARGO_PATCHES) --manifest-path $(ROOT)/services/service-manager/Cargo.toml --lib
 
-# Rebuild the standard inputs used by isolated native ABI/process fixtures.
-# This aggregate does not stage an image, launch a VM, or publish artifacts.
-native-test-tools: runtime-inputs runtime rust-sysroot kernel bootloader msign-tool cexts app-sdk boot-selection-seed system-image-sign-tool system-slot-image-tool
+# Use verified producer artifacts for isolated native ABI/process fixtures.
+# Test-only fixture compilation remains explicit; shipping inputs are not rebuilt.
+native-test-tools: rootfs-stage
 
 # Core services for private native fixtures; feature-built launchers use a
 # separate Cargo target directory and never replace the normal service manager.
-native-test-services: native-test-tools core-service capability filesystem-service posix-service user-service logger signature package-service workspace-service secure-ui input compositor drivers-service msh terminal
+native-test-services: native-test-tools

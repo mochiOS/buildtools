@@ -1,0 +1,8 @@
+format = 1
+
+[build]
+command = ["mdp", "pipeline", "--recipe", "mdp.components.recipe.json"]
+requires = ["devkit-host"]
+sources = []
+artifact = "out/mdp/system-components.tar.mdp"
+outputs = ["out/mdp/webkit-sdk/usr/lib/libwebkit.so"]

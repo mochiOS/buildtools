@@ -1,0 +1,7 @@
+format = 1
+
+[build]
+command = ["mdp", "pipeline", "--recipe", "mdp.data.recipe.json"]
+requires = ["context"]
+sources = []
+artifact = "out/mdp/image-data.tar.mdp"
