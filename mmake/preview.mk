@@ -37,6 +37,11 @@ ui: ime-dictionary ui-boundaries
 	@always
 	$(SCRIPTS)/dev/desktop-ui.sh run $(CARGO_PATCHES)
 
+# Same host workspace, catalogue and application lifecycle; only Binder's shell differs.
+ui-tablet: ime-dictionary ui-boundaries
+	@always
+	$(SCRIPTS)/dev/desktop-ui.sh tablet $(CARGO_PATCHES)
+
 ui-check: ui-boundaries
 	@always
 	$(SCRIPTS)/dev/desktop-ui.sh --check $(CARGO_PATCHES)
