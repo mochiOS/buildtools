@@ -186,6 +186,7 @@ def skeleton(root,stage,variant,config):
         shutil.copyfile(root/'scripts/mmake/development-users.db',stage/'var/lib/accounts/users.db')
         (stage/'var/lib/accounts/users.db').chmod(0o600)
         (stage/'var/config/account/settings.conf').write_text('auto_login=true\nauto_login_user=testuser\n')
+        (stage/'var/config/account/settings.conf').chmod(0o644)
         ownership=['home/testuser']+['home/testuser/'+p.name for p in (stage/'home/testuser').iterdir()]
         (stage/'.mochios-ownership').write_text(''.join(path+' 1000 1000\n' for path in ownership))
 
