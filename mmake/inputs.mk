@@ -260,7 +260,14 @@ keychain-inputs: viewkit-inputs
 	@watch tools/devkit/crates/appcore/src/**
 	@watch user/crates/keychain-protocol/**
 
-applications-inputs: fonts-app-inputs disk-utility-inputs keychain-inputs mail-inputs calculator-inputs calendar-inputs appstore-inputs binder-inputs edit-inputs files-inputs installer-inputs settings-inputs system-monitor-inputs viewer-inputs terminal-inputs
+keyboard-inputs: viewkit-inputs
+	@watch applications/keyboard/Cargo.toml
+	@watch applications/keyboard/Cargo.lock
+	@watch applications/keyboard/src/**
+	@watch applications/keyboard/keyboard.layout
+	@watch applications/keyboard/manifest.toml
+
+applications-inputs: fonts-app-inputs disk-utility-inputs keychain-inputs keyboard-inputs mail-inputs calculator-inputs calendar-inputs appstore-inputs binder-inputs edit-inputs files-inputs installer-inputs settings-inputs system-monitor-inputs viewer-inputs terminal-inputs
 	@watch applications/test.app/Cargo.toml
 	@watch applications/test.app/Cargo.lock
 	@watch applications/test.app/src/**

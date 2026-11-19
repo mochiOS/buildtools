@@ -12,6 +12,10 @@ keychain: keychain-inputs viewkit
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/keychain
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/keychain/Cargo.toml --bin keychain
 
+keyboard: keyboard-inputs viewkit
+	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/keyboard
+	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/keyboard/Cargo.toml --bin keyboard
+
 mail: mail-inputs viewkit
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/mail
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/mail/Cargo.toml --bin mail
@@ -109,6 +113,7 @@ test-app: viewkit
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/test.app/Cargo.toml --bin test_app
 
 apps-bundle: applications-inputs viewkit
+	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/keyboard
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/keychain
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/mail
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/calculator
@@ -126,6 +131,7 @@ apps-bundle: applications-inputs viewkit
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/terminal
 	@output $(RUST_TARGET_DIR)/x86_64-unknown-mochios/release/test_app
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/keychain/Cargo.toml --bin keychain
+	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/keyboard/Cargo.toml --bin keyboard
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/mail/Cargo.toml --bin mail
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/appstore/Cargo.toml --bin appstore
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/calculator/Cargo.toml --bin calculator
@@ -142,4 +148,4 @@ apps-bundle: applications-inputs viewkit
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/terminal/Cargo.toml --bin terminal
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/test.app/Cargo.toml --bin test_app
 
-apps: fonts-app disk-utility appstore keychain mail calculator calendar binder edit files installer settings system-monitor viewer terminal test-app
+apps: fonts-app disk-utility appstore keychain keyboard mail calculator calendar binder edit files installer settings system-monitor viewer terminal test-app

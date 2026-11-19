@@ -61,6 +61,12 @@ bundle = "Keychain.app"
 binary = "keychain"
 package = "keychain-app"
 target = "keychain"
+[[system]]
+source = "keyboard"
+bundle = "Keyboard.app"
+binary = "keyboard"
+package = "keyboard"
+target = "keyboard"
 
 # Added only to the separate installation-media image.
 [[installer]]
