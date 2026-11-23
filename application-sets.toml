@@ -78,6 +78,38 @@ package = "terra"
 target = "terra"
 config = "APPLICATION_TERRA_BUILTIN"
 
+[[optional]]
+source = "edit"
+bundle = "Edit.app"
+binary = "edit"
+package = "edit"
+target = "edit"
+config = "APPLICATION_EDIT_BUILTIN"
+
+[[optional]]
+source = "calendar"
+bundle = "Calendar.app"
+binary = "calendar"
+package = "calendar"
+target = "calendar"
+config = "APPLICATION_CALENDAR_BUILTIN"
+
+[[optional]]
+source = "mail"
+bundle = "Mail.app"
+binary = "mail"
+package = "mail"
+target = "mail"
+config = "APPLICATION_MAIL_BUILTIN"
+
+[[optional]]
+source = "calculator"
+bundle = "Calculator.app"
+binary = "calculator"
+package = "calculator"
+target = "calculator"
+config = "APPLICATION_CALCULATOR_BUILTIN"
+
 # Added only to the separate installation-media image.
 [[installer]]
 source = "installer"

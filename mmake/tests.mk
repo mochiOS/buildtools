@@ -185,3 +185,7 @@ native-test-tools: rootfs-stage
 # Core services for private native fixtures; feature-built launchers use a
 # separate Cargo target directory and never replace the normal service manager.
 native-test-services: native-test-tools
+
+menuconfig-test:
+	@always
+	PYTHONDONTWRITEBYTECODE=1 python3 $(SCRIPTS)/tests/menuconfig-test.py

@@ -20,6 +20,7 @@
 #define VALUE_SIZE 256
 #define CHOICE_SIZE 128
 #define ERROR_SIZE 2048
+#define HELP_SIZE 768
 
 #define SIZE_INVALID (size_t)-1
 
@@ -32,6 +33,7 @@ typedef enum {
 typedef struct {
     char key[KEY_SIZE];
     char prompt[PROMPT_SIZE];
+    char help[HELP_SIZE];
 
     OptionType type;
 
@@ -368,6 +370,10 @@ static bool parse_option_line(
 		return false;
 	}
 
+    if (find_option(state, key)) {
+        fprintf(stderr, "schema:%zu: duplicate option %s\n", line_number, key);
+        return false;
+    }
 	ConfigOption *option = &state->options[state->option_count];
 	memset(option, 0, sizeof(*option));
 
@@ -651,6 +657,24 @@ static bool load_schema(ConfigState *state, const char *path) {
 			continue;
 		}
 
+        if (starts_with(text, "help ")) {
+            char *cursor = text + 5;
+            ConfigMenu *menu = &state->menus[current_menu];
+            if (menu->child_count == 0 ||
+                menu->children[menu->child_count - 1].type != MENU_ITEM_OPTION) {
+                fprintf(stderr, "schema:%zu: help must follow an option\n", line_number);
+                fclose(file);
+                return false;
+            }
+            ConfigOption *option = &state->options[menu->children[menu->child_count - 1].index];
+            if (option->help[0] || !read_quoted(&cursor, option->help, sizeof(option->help)) || *trim(cursor)) {
+                fprintf(stderr, "schema:%zu: invalid or duplicate help\n", line_number);
+                fclose(file);
+                return false;
+            }
+            continue;
+        }
+
 		if (starts_with(text, "menu")) {
 			char *cursor = text + 4;
 			char name[MENU_TITLE_SIZE];
@@ -777,7 +801,7 @@ static void load_config(ConfigState *state, const char *path) {
         ConfigOption *option = find_option(state, key);
 
         if (option == NULL) {
-            if (starts_with(key, "CONFIG_") && state->unknown_count < MAX_UNKNOWN) {
+            if (state->unknown_count < MAX_UNKNOWN) {
                 copy_string(
                     state->unknown_lines[state->unknown_count],
                     sizeof(state->unknown_lines[state->unknown_count]),
@@ -1161,6 +1185,13 @@ static void render(
 
 	ui_attr_off(UI_NORMAL, A_DIM);
 
+    if (menu->child_count > 0 && menu->children[selected].type == MENU_ITEM_OPTION) {
+        const ConfigOption *option = &state->options[menu->children[selected].index];
+        ui_attr_on(UI_NORMAL, A_DIM);
+        mvaddnstr(max_y - 3, 2, option->help[0] ? option->help : option->key, max_x - 4);
+        ui_attr_off(UI_NORMAL, A_DIM);
+    }
+
 	const int footer_y = max_y - 2;
 
 	ui_attr_on(UI_FOOTER, A_NORMAL);
@@ -1169,7 +1200,7 @@ static void render(
 	mvaddnstr(
 		footer_y,
 		2,
-		"Up/Down: move   Enter/Right: open/edit   Space: toggle   Esc/Left: back   s: save   q: quit",
+		"Enter: edit  Space/y/n: set  /: search  F3: next  ?: help  d: default  s: save  q: quit",
 		max_x - 4
 	);
 
@@ -1274,13 +1305,99 @@ static bool confirm_discard(void) {
     return ch == 'y' || ch == 'Y';
 }
 
+/* Search all options without changing values, wrapping after the last match. */
+static bool contains_folded(const char *text, const char *query) {
+    for (; *text; text++) {
+        size_t i = 0;
+        while (query[i] && text[i] &&
+               tolower((unsigned char)text[i]) == tolower((unsigned char)query[i])) i++;
+        if (!query[i]) return true;
+    }
+    return false;
+}
+
+static bool search_option(const ConfigState *state, MenuViewState *view,
+                          const char *query, size_t *last) {
+    if (!query[0] || !state->option_count) return false;
+    for (size_t step = 0; step < state->option_count; step++) {
+        size_t i = (*last == SIZE_INVALID ? step : (*last + 1 + step) % state->option_count);
+        const ConfigOption *option = &state->options[i];
+        if (!contains_folded(option->key, query) && !contains_folded(option->prompt, query) &&
+            !contains_folded(option->help, query)) continue;
+        for (size_t m = 0; m < state->menu_count; m++) {
+            for (size_t c = 0; c < state->menus[m].child_count; c++) {
+                MenuItem item = state->menus[m].children[c];
+                if (item.type == MENU_ITEM_OPTION && item.index == i) {
+                    view->current_menu = (int)m;
+                    view->selected[m] = (int)c;
+                    view->offset[m] = (int)c;
+                    *last = i;
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+static void show_option_help(const ConfigOption *option) {
+    char text[ERROR_SIZE];
+    snprintf(text, sizeof(text), "%s\n\n%s\nDefault: %s\nCurrent: %s\n\n%s",
+             option->prompt, option->key, option->default_value, option->value,
+             option->help[0] ? option->help : "No additional description.");
+    int offset = 0;
+    for (;;) {
+        int rows, cols;
+        getmaxyx(stdscr, rows, cols);
+        erase();
+        if (rows < 6 || cols < 20) {
+            mvaddnstr(0, 0, "Resize terminal or press Esc", cols > 0 ? cols - 1 : 0);
+        } else {
+            char lines[128][MAX_LINE];
+            size_t count = 0;
+            const char *cursor = text;
+            int width = cols - 4;
+            if (width >= MAX_LINE) width = MAX_LINE - 1;
+            while (*cursor && count < 128) {
+                size_t length = 0;
+                while (cursor[length] && cursor[length] != '\n' && length < (size_t)width) length++;
+                if (length == (size_t)width && cursor[length] && cursor[length] != '\n') {
+                    size_t word = length;
+                    while (word && cursor[word] != ' ') word--;
+                    if (word) length = word;
+                }
+                memcpy(lines[count], cursor, length);
+                lines[count++][length] = '\0';
+                cursor += length;
+                if (*cursor == '\n' || *cursor == ' ') cursor++;
+            }
+            int visible = rows - 4;
+            int maximum = (int)count > visible ? (int)count - visible : 0;
+            if (offset > maximum) offset = maximum;
+            if (offset < 0) offset = 0;
+            mvaddnstr(0, 2, "Option help", cols - 4);
+            for (int row = 0; row < visible && offset + row < (int)count; row++)
+                mvaddnstr(row + 2, 2, lines[offset + row], cols - 4);
+            mvaddnstr(rows - 1, 2, "Up/Down: scroll   Esc/Enter: back", cols - 4);
+        }
+        refresh();
+        int key = getch();
+        if (key == 27 || key == '\n' || key == '\r' || key == KEY_ENTER || key == 'q') break;
+        if (key == KEY_DOWN) offset++;
+        if (key == KEY_UP) offset--;
+        if (key == KEY_NPAGE) offset += rows > 5 ? rows - 4 : 1;
+        if (key == KEY_PPAGE) offset -= rows > 5 ? rows - 4 : 1;
+    }
+}
+
 static void usage(const char *program) {
-    fprintf(stderr, "usage: %s --schema <schema.conf> --config <.config>\n", program);
+    fprintf(stderr, "usage: %s --schema <schema.conf> --config <.config> [--check]\n", program);
 }
 
 int main(const int argc, char **argv) {
 	const char *schema_path = NULL;
 	const char *config_path = NULL;
+    bool check_only = false;
 
 	for (int i = 1; i < argc; i++) {
 		if (
@@ -1293,6 +1410,8 @@ int main(const int argc, char **argv) {
 			i + 1 < argc
 		) {
 			config_path = argv[++i];
+		} else if (strcmp(argv[i], "--check") == 0) {
+            check_only = true;
 		} else {
 			usage(argv[0]);
 			return 1;
@@ -1316,6 +1435,10 @@ int main(const int argc, char **argv) {
 	}
 
 	load_config(&state, config_path);
+    if (check_only) {
+        printf("%zu options validated\n", state.option_count);
+        return 0;
+    }
 
 	setlocale(LC_ALL, "");
 
@@ -1329,6 +1452,8 @@ int main(const int argc, char **argv) {
 	bool dirty = false;
 	MenuViewState view = {0};
 	char status[256] = "";
+    char query[VALUE_SIZE] = "";
+    size_t last_match = SIZE_INVALID;
 
 	for (;;) {
 		int max_y;
@@ -1345,7 +1470,7 @@ int main(const int argc, char **argv) {
 		int *offset =
 			&view.offset[view.current_menu];
 
-		int visible = max_y - 8;
+		int visible = max_y - 9;
 
 		if (visible < 1) {
 			visible = 1;
@@ -1382,7 +1507,35 @@ int main(const int argc, char **argv) {
 
 		const int ch = getch();
 
-		if (ch == KEY_UP || ch == 'k') {
+        if (ch == '/' || ch == KEY_F(3)) {
+            if (ch == '/') {
+                move(max_y - 1, 0); clrtoeol();
+                addstr("Search key, label or description: ");
+                echo(); curs_set(1);
+                int result = getnstr(query, sizeof(query) - 1);
+                curs_set(0); noecho();
+                if (result == ERR) query[0] = '\0';
+                last_match = SIZE_INVALID;
+            }
+            if (!query[0]) copy_string(status, sizeof(status), "Search cancelled");
+            else if (!search_option(&state, &view, query, &last_match))
+                copy_string(status, sizeof(status), "No matching option");
+        } else if ((ch == '?' || ch == KEY_F(1) || ch == 'd' || ch == 'y' || ch == 'n') &&
+                   menu->child_count > 0) {
+            MenuItem *item = &menu->children[*selected];
+            if (item->type == MENU_ITEM_OPTION) {
+                ConfigOption *option = &state.options[item->index];
+                if (ch == '?' || ch == KEY_F(1)) show_option_help(option);
+                else if (ch == 'd') {
+                    if (strcmp(option->value, option->default_value)) dirty = true;
+                    copy_string(option->value, sizeof(option->value), option->default_value);
+                } else if (option->type == OPT_BOOL) {
+                    const char *value = ch == 'y' ? "y" : "n";
+                    if (strcmp(option->value, value)) dirty = true;
+                    copy_string(option->value, sizeof(option->value), value);
+                }
+            } else copy_string(status, sizeof(status), "Open a category to select an option");
+        } else if (ch == KEY_UP || ch == 'k') {
 			if (*selected > 0) {
 				(*selected)--;
 			}

@@ -1,6 +1,6 @@
 ROOT	?= ..
 OUT	?= $(ROOT)/out
-SCHEMA	?= $(ROOT)/scripts/config/schema.conf
+SCHEMA	?= $(ROOT)/build/schema.conf
 CONFIG	?= $(ROOT)/.config
 
 HOSTCC		?= cc
