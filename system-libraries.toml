@@ -4,5 +4,5 @@ format = 1
 # Installation is part of System image construction, never package.service.
 [[components]]
 package = "org.mochios.webkit"
-source = "out/cache/system-libraries/webkit-288a728"
-manifest_sha256 = "9a44b0d8ef2cdd02aa32f03865b75c892f025314ec5f58e298631f23572b684f"
+source = "out/cache/system-libraries/webkit-288a728-notices"
+manifest_sha256 = "c0c000c75e355889280f90f3dff011bea24e0c6c0dbb3506ffc860eab09abb32"

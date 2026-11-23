@@ -1,4 +1,4 @@
-rootfs-stage: config
+rootfs-stage: config mdp-workspace-build
 	@always
 	python3 $(ROOT)/build/mdp/image.py --root $(ROOT)
 
@@ -130,7 +130,7 @@ clean-runner:
 
 # Installer UI is exclusive to this separate, first-boot image. Installer's
 # existing write gate is unchanged; this target does not enable disk writes.
-installer-rootfs-stage: config
+installer-rootfs-stage: config mdp-workspace-build
 	@always
 	python3 $(ROOT)/build/mdp/image.py --root $(ROOT) --variant installer
 

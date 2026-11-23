@@ -32,3 +32,8 @@ mdp-migration-test:
 migrate-output-layout:
 	@always
 	python3 $(SCRIPTS)/dev/migrate-output-layout.py --root $(ROOT)
+
+# Build repository-owned producers before consuming their composition lock.
+mdp-workspace-build: config
+	@always
+	python3 $(SCRIPTS)/dev/build-workspace.py --root $(ROOT)
