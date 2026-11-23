@@ -1,5 +1,12 @@
 rootfs-stage: config mdp-workspace-build
 	@always
+	@watch mdp.assembly.lock
+	@watch build/mdp/image.py
+	@watch build/mdp/policy.toml
+	@watch build/application-sets.toml
+	@watch resources/system/**
+	@watch resources/libraries/**
+	@watch scripts/mmake/development-users.db
 	python3 $(ROOT)/build/mdp/image.py --root $(ROOT)
 
 initfs-stage: rootfs
@@ -132,6 +139,13 @@ clean-runner:
 # existing write gate is unchanged; this target does not enable disk writes.
 installer-rootfs-stage: config mdp-workspace-build
 	@always
+	@watch mdp.assembly.lock
+	@watch build/mdp/image.py
+	@watch build/mdp/policy.toml
+	@watch build/application-sets.toml
+	@watch resources/system/**
+	@watch resources/libraries/**
+	@watch scripts/mmake/development-users.db
 	python3 $(ROOT)/build/mdp/image.py --root $(ROOT) --variant installer
 
 installer-image: installer-rootfs-stage
