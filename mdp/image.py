@@ -5,6 +5,7 @@ This consumer never calls Cargo, a compiler, a producer pipeline or a downloader
 """
 import argparse
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path, PurePosixPath
@@ -270,8 +271,9 @@ def stage(root,lock,variant):
                 if config.get('KERNEL_PERFORMANCE_INSTRUMENTATION')!='y':excludes+=['/bin/mperf']
                 if config.get('USER_BUILD_SELFTESTS')!='y':excludes+=['/bin/selftest-ext2-write','/bin/selftest-system-layout']
             bindings.append((tree/'manifests'/source,entry['directory'],entry.get('maps',[]),excludes))
-    catalog=tomllib.loads((root/'build/application-sets.toml').read_text())
-    selected=catalog['system']+(catalog['installer'] if variant=='installer' else [])
+    spec=importlib.util.spec_from_file_location('image_applications',root/'scripts/mmake/image-applications.py')
+    policy=importlib.util.module_from_spec(spec);spec.loader.exec_module(policy)
+    selected=policy.selected(root,variant,config)
     for app in selected:
         check(app['source'] in applications,'missing application MDP: '+app['source'])
         destination=pending/'system/applications'/app['bundle']

@@ -3,3 +3,7 @@ system-apps: binder settings files terminal appstore disk-utility viewer fonts-a
 system-applications-inputs: binder-inputs settings-inputs files-inputs terminal-inputs appstore-inputs disk-utility-inputs viewer-inputs fonts-app-inputs system-monitor-inputs keychain-inputs keyboard-inputs
 installer-apps: installer
 installer-applications-inputs: installer-inputs
+ifeq ($(APPLICATION_TERRA_BUILTIN),y)
+system-apps: terra
+system-applications-inputs: terra-inputs
+endif

@@ -317,3 +317,6 @@ filesystem-inputs: system-applications-inputs services-inputs drivers-inputs cex
 
 image-inputs: kernel-inputs boot-inputs filesystem-inputs
 	@watch scripts/build-sample-mpkg.pl
+
+terra-inputs:
+	@watch applications/terra/out/mdp/app-terra.tar.mdp

@@ -68,6 +68,16 @@ binary = "keyboard"
 package = "keyboard"
 target = "keyboard"
 
+# Store applications may be explicitly embedded for development images.
+# Their default distribution remains AppStore; selection grants no producer authority.
+[[optional]]
+source = "terra"
+bundle = "Terra.app"
+binary = "terra"
+package = "terra"
+target = "terra"
+config = "APPLICATION_TERRA_BUILTIN"
+
 # Added only to the separate installation-media image.
 [[installer]]
 source = "installer"

@@ -149,3 +149,8 @@ apps-bundle: applications-inputs viewkit
 	$(MOCHIOS_CARGO) --manifest-path $(ROOT)/applications/test.app/Cargo.toml --bin test_app
 
 apps: fonts-app disk-utility appstore keychain keyboard mail calculator calendar binder edit files installer settings system-monitor viewer terminal test-app
+
+# Optional native browser: built by its MDP producer, never by product assembly.
+terra:
+	@always
+	test -f $(ROOT)/applications/terra/out/mdp/app-terra.tar.mdp || { echo "Run mdp workspace build --select app-terra." >&2; exit 1; }
