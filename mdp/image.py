@@ -35,15 +35,17 @@ def digest(path):
 def toml_text(data):
     """Serialize package tables without dropping nested capability/dependency declarations."""
     lines=[]
+    def key_text(key):
+        return key if re.fullmatch(r"[A-Za-z0-9_-]+",key) else json.dumps(key)
     def table(mapping,path=(),header=None):
         if header:lines.append(header)
         children=[]
         for key,value in mapping.items():
             if isinstance(value,dict) or isinstance(value,list) and value and isinstance(value[0],dict):
                 children.append((key,value))
-            else:lines.append(json.dumps(key)+' = '+json.dumps(value,allow_nan=False))
+            else:lines.append(key_text(key)+' = '+json.dumps(value,allow_nan=False))
         for key,value in children:
-            child=(*path,key);name='.'.join(json.dumps(p) for p in child)
+            child=(*path,key);name='.'.join(key_text(p) for p in child)
             for item in value if isinstance(value,list) else [value]:
                 lines.append('');table(item,child,'[['+name+']]' if isinstance(value,list) else '['+name+']')
     table(data)
